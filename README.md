@@ -66,6 +66,11 @@ Scaled figures are projections: the measured per-user figures multiplied, assumi
 ## How it works
 
 <picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/assets/flow-dark.svg">
+  <img src="docs/assets/flow-light.svg" alt="How Tierwise routes a task. 1: classify the task by rules, with Haiku only as a tie-break. 2: rate the risk from R0 (docs and tests) to R3 (auth, secrets, payments, migrations, infrastructure). Questions use a Haiku scout for lookups and the Opus main session answers; trivial edits and local fixes stay in the Opus main session; features, bulk work, investigations and high-risk tasks get a Fable plan (reviewed by Opus at R2 and above), then Sonnet builders, Haiku for mechanical bulk work at low risk, and Opus for R3 core logic. 5: a gate runs syntax, secret, test and type checks before anything can finish. 6: reviews by tier: Opus reviewer at R1, Opus reviewer and security reviewer at R2, Opus security reviewer and Fable principal at R3. When checks fail the same way again, a debugging ladder climbs from a retry to an Opus debugger, a Fable principal, and finally asks you. A guard checks every agent start." width="100%">
+</picture>
+
+<picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/assets/mix-dark.svg">
   <img src="docs/assets/mix-light.svg" alt="Tierwise spend per job by model: Opus $7.01 (66%), Fable $2.75 (26%), Sonnet $0.89 (8%), Haiku $0.01." width="100%">
 </picture>
@@ -138,6 +143,8 @@ python3 -m unittest discover -s plugins/tierwise/tests   # Python tests
 claude plugin test plugins/tierwise                       # mod tests
 claude plugin validate --strict .                         # manifests
 python3 docs/assets/make_charts.py                        # redraw the charts from the data
+python3 docs/assets/make_flowchart.py                     # redraw the routing flowchart
+python3 docs/assets/make_overview.py                      # render the overview images (needs Chromium or Chrome)
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md). Security reports: [SECURITY.md](SECURITY.md). Release history: [CHANGELOG.md](CHANGELOG.md).
