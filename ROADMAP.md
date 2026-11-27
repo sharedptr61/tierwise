@@ -14,5 +14,6 @@ Tierwise's aim: the quality of the strongest models where it matters, at a fract
 - Behaviour on plans without Fable access, and for API-key users.
 
 ## Done
+- 1.0.2: fixes and a full account of what runs on your machine.
 - 1.0.1: Tierwise never changes Claude Code's settings files.
 - 1.0.0: first public release, Ubuntu. See [CHANGELOG.md](CHANGELOG.md).

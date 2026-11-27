@@ -24,6 +24,33 @@ The main session stays on Opus for the whole task, so its prompt cache is never 
 
 Without the mod (hooks only), a `UserPromptSubmit` hook adds the same card from the same rules; the main session's effort then stays at the session default.
 
+## What runs on your machine
+
+**Hooks.** Each runs one of Tierwise's own scripts in `bin/` with `python3` (standard library only), from the path `${CLAUDE_PLUGIN_ROOT}/bin/...`:
+
+| Event | Script | What it does |
+| --- | --- | --- |
+| Session start, resume, compaction | `state hook session-start` | Points the session back at an open task in `.tierwise/state.json` |
+| Each prompt | `classify-risk --hook` | Classifies the prompt and adds the routing card; on the first code task it creates `.claude/tierwise.json` and `.tierwise/` |
+| Before an agent starts | `guard-spawn pre-agent` | Checks the agent's model, effort, caps and budget; refuses a start that breaks them, with the reason |
+| Before a file edit | `guard-spawn pre-write` | Keeps the planner and read-only agents to their folders; at R3, holds edits until the plan exists |
+| Before an agent reports back | `guard-spawn pre-handback` | Checks the report has its five fields |
+| Before a shell command | `guard-spawn pre-bash` | Stops read-only agents from running commands that change files or git state |
+| When an agent stops | `guard-spawn subagent-stop` | Records in the ledger which model the agent ran on, and any review it completed |
+| When the session tries to finish | `run-checks --gate` | Runs the checks the change needs and can block finishing while they fail (see below) |
+| Before compaction, after a model switch | `state hook ...` | Records task state |
+
+**Commands the gate runs.** `git` (to find what changed), Python's own parser and `node --check` (when node is installed) for the syntax check, and the check commands in your project's `.claude/tierwise.json`: tests, linters, type checkers and scanners. Those are auto-detected on first use and shown to you to confirm; Tierwise never installs anything.
+
+**The mod** (`hooks/register.js`, runs inside Claude Code only after you approve it):
+- runs `python3 bin/classify-risk --mod` with the prompt on its input, to route it, and `python3 bin/state ledger ...` at the end of a session, to write the session's cost line to the ledger;
+- when the routing rules are unsure, asks your Claude Code session's classifier model (Haiku) for a one-word label for the prompt; like any Claude Code request, that goes to Anthropic, and nowhere else;
+- sets the main session's effort for each prompt;
+- reads `.tierwise/state.json`, and writes each task's measured cost to `.tierwise/usage.json`;
+- keeps the session's cost tally in Claude Code's plugin state, and adds the `/tierwise-savings` command and panel.
+
+Nothing else is read, written or sent. Tierwise never changes Claude Code's settings files.
+
 ## What it saves, shown as you work
 
 Tierwise measures every request of the session, in the main session and in every subagent, from the usage the API reports, and prices it at list price for the model that served it. The status line keeps a running comparison against doing the same work on your main session's model alone:
@@ -49,7 +76,7 @@ From Claude Code:
 
 Restart Claude Code (or run `/reload-plugins`). The first time you load it, Claude Code asks whether to run the plugin's mod (in-process code with your permissions); Tierwise works without it, with coarser effort control.
 
-Requirements: Claude Code 2.1.299 or later (2.1.332 tested), Python 3.8+, git. Projects must be git repositories for task state and the gate. Install or update Claude Code with the native installer (`curl -fsSL https://claude.ai/install.sh | bash`); the npm package can lag behind the required version.
+Requirements: Claude Code 2.1.299 or later (2.1.332 tested), Python 3.8+, git. Projects must be git repositories for task state and the gate. Install or update Claude Code with the native installer described in [Claude Code's setup guide](https://code.claude.com/docs/en/setup); the npm package can lag behind the required version.
 
 **Platform:** Ubuntu (22.04 and 24.04 LTS). macOS and Windows are not supported in this release; support is planned once they have been tested.
 

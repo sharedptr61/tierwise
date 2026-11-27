@@ -1,6 +1,6 @@
 ---
 name: orchestrate
-description: Tierwise's routing rules. Use whenever a "[Tierwise] route:" card is in context, before delegating any work, writing a brief, reviewing, or claiming a task is done. Covers which agent gets which work, the eligibility rule, the debugging ladder, reviews by risk tier, handoffs and the ledger.
+description: "Tierwise's routing rules. Use whenever a \"[tierwise] route:\" card is in context, before delegating any work, writing a brief, reviewing, or claiming a task is done. Covers which agent gets which work, the eligibility rule, the debugging ladder, reviews by risk tier, handoffs and the ledger."
 ---
 
 # tierwise: routing rules for the main session

@@ -1,6 +1,6 @@
 ---
 name: terse
-description: Switch the session to a terse reply style that keeps every technical fact. The user turns it on with /tierwise:terse and off with "normal mode".
+description: "Switch the session to a terse reply style that keeps every technical fact. The user turns it on with /tierwise:terse and off with \"normal mode\"."
 disable-model-invocation: true
 ---
 

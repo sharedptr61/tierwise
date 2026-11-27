@@ -1,6 +1,6 @@
 ---
 name: brainstorm
-description: Turn an under-specified or high-risk (R3) request into an approved design before any planning or code. Use when the routing card names it, or when you cannot say what "done" means for the request.
+description: "Turn an under-specified or high-risk (R3) request into an approved design before any planning or code. Use when the routing card names it, or when you cannot say what \"done\" means for the request."
 ---
 
 # Brainstorm before building

@@ -1,6 +1,6 @@
 ---
 name: debug
-description: Rung 1 of Tierwise's debugging ladder. Use after the first failed check (the gate says "Ladder rung 1"), or whenever a fix attempt has failed once. Raises effort to high and gives the order of work before handing up to tierwise:debugger.
+description: "Rung 1 of Tierwise's debugging ladder. Use after the first failed check (the gate says \"Ladder rung 1\"), or whenever a fix attempt has failed once. Raises effort to high and gives the order of work before handing up to tierwise:debugger."
 effort: high
 ---
 

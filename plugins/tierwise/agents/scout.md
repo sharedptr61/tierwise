@@ -1,6 +1,6 @@
 ---
 name: scout
-description: Cheap read-only locator on Haiku. Use for batched lookups ("where is X", "what calls Y", "list all Z"), inventories, and digests of logs or test output. Returns file:line answers. Not for judgment calls, research or recommendations; use analyst for those (the guard sends such briefs there).
+description: "Cheap read-only locator on Haiku. Use for batched lookups (\"where is X\", \"what calls Y\", \"list all Z\"), inventories, and digests of logs or test output. Returns file:line answers. Not for judgment calls, research or recommendations; use analyst for those (the guard sends such briefs there)."
 model: haiku
 effort: low
 tools: Read, Grep, Glob, Write

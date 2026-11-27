@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <img alt="Version 1.0.1" src="https://img.shields.io/badge/version-1.0.1-blue">
+  <img alt="Version 1.0.2" src="https://img.shields.io/badge/version-1.0.2-blue">
   <img alt="Platform: Ubuntu" src="https://img.shields.io/badge/platform-Ubuntu-E95420?logo=ubuntu&logoColor=white">
   <img alt="Claude Code 2.1.299+" src="https://img.shields.io/badge/Claude%20Code-2.1.299%2B-orange">
   <img alt="Python 3.8+" src="https://img.shields.io/badge/python-3.8%2B-informational">
@@ -102,7 +102,7 @@ In Claude Code:
 
 Then run `/reload-plugins` or restart. The first time, Claude Code asks whether to run Tierwise's mod (in-process code that sets effort per prompt and measures cost); Tierwise also works without it, with coarser effort control.
 
-**Requirements:** Claude Code 2.1.299 or later, Python 3.8+, git; projects must be git repositories. Install or update Claude Code with the native installer (`curl -fsSL https://claude.ai/install.sh | bash`); the npm package can lag behind the required version.
+**Requirements:** Claude Code 2.1.299 or later, Python 3.8+, git; projects must be git repositories. Install or update Claude Code with the native installer described in [Claude Code's setup guide](https://code.claude.com/docs/en/setup); the npm package can lag behind the required version.
 
 **Platform:** Ubuntu (22.04 and 24.04 LTS). macOS and Windows are not supported in this release; support is planned once they have been tested.
 
@@ -126,7 +126,7 @@ Per-project settings live in `.claude/tierwise.json`, written from auto-detectio
 
 Tierwise itself sends nothing to any third party. Routing rules, the secret and syntax checks, cost measurement and the ledger all run locally. Its only model calls go through your own Claude Code session: the agents it starts, and a short Haiku classification when a prompt's routing is unclear. Checks you configure run as those tools normally do (for example, `npm audit` and `pip-audit` query their vulnerability databases). Static analysis runs Semgrep only with your project's own rules and with metrics switched off.
 
-**What Tierwise writes, all inside your project:** `.claude/tierwise.json` (its settings), `.tierwise/` (task state, plans, reports and a ledger that records each task's route and the first 200 characters of the prompt that started it), and one line in `.git/info/exclude` so `.tierwise/` stays out of git. It never changes Claude Code's own settings files, and nothing it stores leaves your machine. Delete `.tierwise/` at any time to clear it.
+**What Tierwise writes, all inside your project:** `.claude/tierwise.json` (its settings), `.tierwise/` (task state, plans, reports and a ledger that records each task's route and the first 200 characters of the prompt that started it), and one line in `.git/info/exclude` so `.tierwise/` stays out of git. It never changes Claude Code's own settings files, and nothing it stores leaves your machine. Delete `.tierwise/` at any time to clear it. Every hook, script and model call Tierwise makes is listed in [What runs on your machine](plugins/tierwise/README.md#what-runs-on-your-machine).
 
 ## Evaluation, honestly
 

@@ -1,6 +1,6 @@
 {
   "name": "tierwise",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Gives every step of your Claude Code work to the model it needs: Fable for plans and hard judgement, Opus for security-sensitive code and review, Sonnet and Haiku for the volume. Enforces the routing at every spawn, runs the checks a change needs before it can finish, and shows what you saved.",
   "author": {
     "name": "Onur Aktas",
