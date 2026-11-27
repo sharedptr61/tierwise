@@ -99,7 +99,7 @@ Working days are 8 hours. Each user saves their own time; the totals add up time
 
 **Limits of the evaluation:**
 - Three Tierwise runs and one run each of all-Opus and all-Fable is a small sample.
-- The evaluation ran on Linux with Claude Code 2.1.332. Tierwise 1.0.0 is supported on Ubuntu.
+- The evaluation ran on Linux with Claude Code 2.1.332. Tierwise is supported on Ubuntu.
 - All-Opus and all-Fable ran on 26 November 2026, Tierwise on 27 November, with the same scripts and prompts.
 - The judging panel held six outputs per stage: the five here, plus one from an earlier Tierwise configuration (not reported).
 - These runs measure Tierwise's model routing in multi-agent workflows. They do not exercise the plugin's hooks or check gate in an interactive session.

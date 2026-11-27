@@ -9,7 +9,7 @@
 
 <p align="center">
   <a href="LICENSE"><img alt="License: MIT" src="https://img.shields.io/badge/license-MIT-blue"></a>
-  <img alt="Version 1.0.0" src="https://img.shields.io/badge/version-1.0.0-blue">
+  <img alt="Version 1.0.1" src="https://img.shields.io/badge/version-1.0.1-blue">
   <img alt="Platform: Ubuntu" src="https://img.shields.io/badge/platform-Ubuntu-E95420?logo=ubuntu&logoColor=white">
   <img alt="Claude Code 2.1.299+" src="https://img.shields.io/badge/Claude%20Code-2.1.299%2B-orange">
   <img alt="Python 3.8+" src="https://img.shields.io/badge/python-3.8%2B-informational">
@@ -120,6 +120,8 @@ Per-project settings live in `.claude/tierwise.json`, written from auto-detectio
 ## Privacy
 
 Tierwise itself sends nothing to any third party. Routing rules, the secret and syntax checks, cost measurement and the ledger all run locally. Its only model calls go through your own Claude Code session: the agents it starts, and a short Haiku classification when a prompt's routing is unclear. Checks you configure run as those tools normally do (for example, `npm audit` and `pip-audit` query their vulnerability databases). Static analysis runs Semgrep only with your project's own rules and with metrics switched off.
+
+**What Tierwise writes, all inside your project:** `.claude/tierwise.json` (its settings), `.tierwise/` (task state, plans, reports and a ledger that records each task's route and the first 200 characters of the prompt that started it), and one line in `.git/info/exclude` so `.tierwise/` stays out of git. It never changes Claude Code's own settings files, and nothing it stores leaves your machine. Delete `.tierwise/` at any time to clear it.
 
 ## Evaluation, honestly
 

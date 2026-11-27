@@ -45,50 +45,27 @@ def sg_installed():
     return any(k.startswith("security-guidance@") and v for k, v in enabled.items())
 
 
-def ensure_sg_env(root, add_if_missing=True):
-    """Run security-guidance's end-of-turn review on Sonnet in this project (decision 6).
-
-    Written to the project's personal, untracked .claude/settings.local.json, never to user settings,
-    and only when the project does not set the variable already. Also repairs the alias `sonnet` that
-    tierwise 0.1.0 wrote there. Returns True when it wrote the file.
-    """
+def sg_env_set(root):
+    """Whether the project already sets SECURITY_REVIEW_MODEL for security-guidance (read-only)."""
     for name in ("settings.json", "settings.local.json"):
         try:
             with open(os.path.join(root, ".claude", name)) as f:
-                value = json.load(f).get("env", {}).get("SECURITY_REVIEW_MODEL")
+                if json.load(f).get("env", {}).get("SECURITY_REVIEW_MODEL") is not None:
+                    return True
         except (OSError, ValueError, AttributeError):
             continue
-        if value is not None and not (name == "settings.local.json" and value == "sonnet"):
-            return False
-        if value == "sonnet":
-            add_if_missing = True  # repair tierwise 0.1.0's value
-    if not add_if_missing:
-        return False
-    path = os.path.join(root, ".claude", "settings.local.json")
-    try:
-        data = {}
-        if os.path.exists(path):
-            with open(path) as f:
-                data = json.load(f)
-    except ValueError:
-        return False  # never overwrite a file we cannot parse
-    data.setdefault("env", {})["SECURITY_REVIEW_MODEL"] = SG_REVIEW_MODEL
-    os.makedirs(os.path.dirname(path), exist_ok=True)
-    with open(path, "w") as f:
-        json.dump(data, f, indent=2)
-        f.write("\n")
-    return True
+    return False
 
 
 def ensure_config(root):
-    """Write .claude/tierwise.json from auto-detection when the project has none. Returns a note, or None."""
+    """Write .claude/tierwise.json from auto-detection when the project has none. Returns a note, or None.
+
+    Tierwise never changes Claude Code's settings files. When security-guidance is installed and the project
+    does not choose a model for its end-of-turn review, the note suggests one for the user to add.
+    """
     path = config_path(root)
     if os.path.exists(path):
-        if ensure_sg_env(root, add_if_missing=False):
-            return (f"tierwise corrected SECURITY_REVIEW_MODEL to {SG_REVIEW_MODEL} in .claude/settings.local.json "
-                    "(takes effect next session).")
         return None
-    sg = ensure_sg_env(root) if sg_installed() else False  # only for users who have security-guidance
     found = C.detect(root)
     cfg = {"confirmed": False, "checks": found}
     os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -96,10 +73,12 @@ def ensure_config(root):
         json.dump(cfg, f, indent=2)
         f.write("\n")
     listed = ", ".join(f"{k}: `{v}`" for k, v in sorted(found.items())) or "nothing detected"
-    return (f"tierwise wrote .claude/tierwise.json from auto-detection ({listed}). Show the user these check commands "
+    suggest = sg_installed() and not sg_env_set(root)
+    return (f"Tierwise wrote .claude/tierwise.json from auto-detection ({listed}). Show the user these check commands "
             "once, ask them to confirm or correct them, then set \"confirmed\": true."
-            + (f" It also set SECURITY_REVIEW_MODEL={SG_REVIEW_MODEL} in .claude/settings.local.json (security-guidance's "
-               "end-of-turn review on Sonnet; takes effect next session)." if sg else ""))
+            + (f" Also tell the user, once, that security-guidance's end-of-turn review can run on Sonnet if they add "
+               f"\"env\": {{\"SECURITY_REVIEW_MODEL\": \"{SG_REVIEW_MODEL}\"}} to .claude/settings.local.json; "
+               "Tierwise does not change settings files itself." if suggest else ""))
 
 
 def new_task_id():

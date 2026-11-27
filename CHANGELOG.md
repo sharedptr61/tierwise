@@ -2,6 +2,12 @@
 
 All notable changes to Tierwise are recorded here. The format follows [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and versions follow [Semantic Versioning](https://semver.org/).
 
+## [1.0.1] - 2026-11-27
+
+### Changed
+- Tierwise never changes Claude Code's settings files. It used to set `SECURITY_REVIEW_MODEL` in a project's `.claude/settings.local.json` when security-guidance was installed; it now suggests the setting once, for you to add.
+- The README lists everything Tierwise writes and stores in a project.
+
 ## [1.0.0] - 2026-11-27
 
 First public release.
@@ -19,4 +25,5 @@ First public release.
 - Supported on Ubuntu 22.04 and 24.04 LTS, tested in CI with Python 3.8, 3.10 and 3.12. Developed with Claude Code 2.1.332.
 - macOS and Windows are not supported in this release.
 
+[1.0.1]: https://github.com/sharedptr61/tierwise/releases/tag/v1.0.1
 [1.0.0]: https://github.com/sharedptr61/tierwise/releases/tag/v1.0.0

@@ -442,35 +442,26 @@ class Gate(GuardBase):
         third = self.start("Add a CSV exporter to app/core.py")["task"]
         self.assertEqual(third["id"], second["id"])  # work in progress keeps its task
 
-    def test_first_task_writes_config_and_sg_env(self):
+    def first_task_note(self, sg):
         os.remove(os.path.join(self.root, ".claude", "tierwise.json"))
         r = route("Add a CSV exporter to app/core.py", default_config())
-        with mock.patch.object(flow, "sg_installed", return_value=True):
+        with mock.patch.object(flow, "sg_installed", return_value=sg):
             notes = flow.record_route(self.root, r, "p", "test")
         self.assertTrue(os.path.exists(os.path.join(self.root, ".claude", "tierwise.json")))
         self.assertIn("confirm", notes[0])
-        with open(os.path.join(self.root, ".claude", "settings.local.json")) as f:
-            self.assertEqual(json.load(f)["env"]["SECURITY_REVIEW_MODEL"], "claude-sonnet-5-5")
+        return notes[0]
 
-    def test_no_sg_env_without_security_guidance(self):
-        os.remove(os.path.join(self.root, ".claude", "tierwise.json"))
-        r = route("Add a CSV exporter to app/core.py", default_config())
-        with mock.patch.object(flow, "sg_installed", return_value=False):
-            flow.record_route(self.root, r, "p", "test")
-        self.assertTrue(os.path.exists(os.path.join(self.root, ".claude", "tierwise.json")))
-        self.assertFalse(os.path.exists(os.path.join(self.root, ".claude", "settings.local.json")))
+    def test_first_task_writes_its_config_and_never_claude_settings(self):
+        for sg in (True, False):
+            self.first_task_note(sg)
+            self.assertFalse(os.path.exists(os.path.join(self.root, ".claude", "settings.local.json")), sg)
 
-    def test_sg_env_repairs_old_alias_and_respects_user_values(self):
-        self.write(".claude/settings.local.json", json.dumps({"env": {"SECURITY_REVIEW_MODEL": "sonnet", "X": "1"}}))
-        note = flow.ensure_config(self.root)  # tierwise.json exists already (setUp)
-        self.assertIn("corrected SECURITY_REVIEW_MODEL", note)
-        with open(os.path.join(self.root, ".claude", "settings.local.json")) as f:
-            self.assertEqual(json.load(f)["env"], {"SECURITY_REVIEW_MODEL": "claude-sonnet-5-5", "X": "1"})
-        self.assertIsNone(flow.ensure_config(self.root))  # idempotent
+    def test_suggests_the_review_model_only_to_security_guidance_users(self):
+        self.assertIn('"SECURITY_REVIEW_MODEL": "claude-sonnet-5-5"', self.first_task_note(True))
+        self.assertNotIn("SECURITY_REVIEW_MODEL", self.first_task_note(False))
         self.write(".claude/settings.local.json", json.dumps({"env": {"SECURITY_REVIEW_MODEL": "claude-opus-5-5"}}))
-        self.assertIsNone(flow.ensure_config(self.root))  # a user's own choice is kept
-        os.remove(os.path.join(self.root, ".claude", "settings.local.json"))
-        self.assertIsNone(flow.ensure_config(self.root))  # not re-added once a project is configured
+        self.assertNotIn("SECURITY_REVIEW_MODEL", self.first_task_note(True))  # the user's own choice stands
+        self.assertIsNone(flow.ensure_config(self.root))  # nothing more once a project is configured
 
     def transcript_of(self, model):
         path = os.path.join(self.tmp, f"main-{model}.jsonl")
