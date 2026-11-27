@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Prove a regression test: it must fail on the base commit and pass on the change.
+
+  red-green --cmd "python3 -m pytest -q tests/test_x.py" --tests tests/test_x.py [--base REF]
+--base defaults to the active task's base, else HEAD. The test files are copied from the working tree.
+"""
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mlib.checks import red_green  # noqa: E402
+from mlib.common import git_root, ledger, load_state, locked_state  # noqa: E402
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--cmd", required=True)
+    ap.add_argument("--tests", nargs="+", required=True)
+    ap.add_argument("--base")
+    a = ap.parse_args()
+    root = git_root(os.getcwd())
+    if not root:
+        print("red-green: not inside a git repository", file=sys.stderr)
+        return 2
+    base = a.base or (load_state(root).get("task") or {}).get("base") or "HEAD"
+    res = red_green(root, a.cmd, base, a.tests)
+    print(json.dumps(res, indent=2))
+    if os.path.isdir(os.path.join(root, ".tierwise")):
+        with locked_state(root) as s:
+            if s.get("task"):
+                s["task"]["redGreen"] = {"ok": res.get("ok"), "tests": a.tests}
+        ledger(root, f"red-green {'OK' if res.get('ok') else 'FAILED'}: {' '.join(a.tests)} "
+                     f"(red={res.get('red')}, green={res.get('green')})")
+    return 0 if res.get("ok") else 1
+
+
+if __name__ == "__main__":
+    sys.exit(main())

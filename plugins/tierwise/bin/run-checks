@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+"""Run the checks the change needs and print a short failure digest; full logs go to .tierwise/reports/checks/.
+
+  run-checks [--only unit,secrets]     run now; exit 1 when a check fails
+  run-checks --gate                    the Stop hook (stdin: hook JSON)
+"""
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mlib import checks as C  # noqa: E402
+from mlib.common import (main_root, changed_files, emit, ensure_layout, git_root, hook_input, load_config,  # noqa: E402
+                         load_state, paths_tier)
+from mlib.flow import gate  # noqa: E402
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--gate", action="store_true")
+    ap.add_argument("--only")
+    ap.add_argument("--json", action="store_true")
+    a = ap.parse_args()
+    if a.gate:
+        inp = hook_input()
+        root = main_root(inp.get("cwd") or ".")
+        out = gate(root, inp) if root else None
+        if out:
+            emit(out)
+        return 0
+    root = git_root(os.getcwd())
+    if not root:
+        print("run-checks: not inside a git repository", file=sys.stderr)
+        return 2
+    ensure_layout(root)
+    cfg = load_config(root)
+    task = load_state(root).get("task") or {}
+    base = task.get("base") or "HEAD"
+    files = changed_files(root, base, task.get("untracked", []))
+    tier = task.get("tier") or paths_tier(files, cfg) or "R1"
+    sel = C.select(cfg, files, tier, task.get("class"), C.plan_checks(root, task.get("plan")))
+    if a.only:
+        keep = set(a.only.split(","))
+        sel = [c for c in sel if c["id"] in keep] or [{"id": i, "cmd": cfg["checks"].get(i) or
+                                                       ("builtin:secrets" if i == "secrets" else None),
+                                                       "reason": "requested"} for i in keep]
+    if not sel:
+        print("run-checks: nothing changed; no checks to run")
+        return 0
+    results, logdir = C.run_selected(root, sel, base, files, timeout=cfg["caps"].get("checkTimeoutSeconds", 300))
+    print(json.dumps(results, indent=2) if a.json else C.summary(results) + f"\n(logs: {os.path.relpath(logdir, root)})")
+    return 1 if any(r["status"] == "fail" for r in results) else 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

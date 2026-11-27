@@ -1,0 +1,56 @@
+#!/usr/bin/env python3
+"""Build a review package from git: the diff since the task base, the spec, the check results.
+
+No author reasoning goes in. Prints the package path; give reviewers only that path.
+  review-package [--base REF] [--spec PATH]
+"""
+import argparse
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mlib.common import changed_files, ensure_layout, git, git_root, load_state, mdir  # noqa: E402
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--base")
+    ap.add_argument("--spec")
+    a = ap.parse_args()
+    root = git_root(os.getcwd())
+    if not root:
+        print("review-package: not inside a git repository", file=sys.stderr)
+        return 2
+    ensure_layout(root)
+    st = load_state(root)
+    task = st.get("task") or {}
+    base = a.base or task.get("base") or "HEAD"
+    files = changed_files(root, base, task.get("untracked", []))
+    _, diff, _ = git(root, "diff", "--no-color", base, "--", *files, timeout=60) if files else (0, "", "")
+    new = [f for f in files if f not in diff]
+    parts = [f"# Review package {time.strftime('%Y-%m-%d %H:%M')}", "",
+             f"Task: {task.get('class', '?')} · {task.get('tier', '?')} · base `{base}`", "",
+             "## Spec", ""]
+    spec = a.spec or task.get("plan")
+    parts.append(f"Read `{spec}`." if spec else f"Task prompt: {task.get('prompt', '(none recorded)')}")
+    v = st.get("verification") or {}
+    parts += ["", "## Checks", "", f"Last gate: {v.get('status', 'not run')} · logs `{v.get('logs', '-')}`"
+              + (f" · failed {', '.join(v['failed'])}" if v.get("failed") else "")
+              + (f" · not run (no tool) {', '.join(v['missing'])}" if v.get("missing") else ""),
+              "", f"## Files ({len(files)})", ""] + [f"- `{f}`" for f in files] + ["", "## Diff", "", "```diff",
+                                                                                   diff.rstrip(), "```"]
+    for f in new:
+        p = os.path.join(root, f)
+        if os.path.isfile(p) and os.path.getsize(p) < 200_000:
+            with open(p, errors="replace") as fh:
+                parts += ["", f"## New file `{f}`", "", "```", fh.read().rstrip(), "```"]
+    out = mdir(root, "reports", f"review-package-{time.strftime('%Y%m%d-%H%M%S')}.md")
+    with open(out, "w") as fh:
+        fh.write("\n".join(parts) + "\n")
+    print(os.path.relpath(out, root))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""Classify a prompt and build its routing card.
+
+  classify-risk "prompt text"          print the route as JSON (no state written)
+  classify-risk --hook                 UserPromptSubmit fallback (stdin: hook JSON); used when the mod is off
+  classify-risk --mod [--label L]      called by the mod (stdin: {"prompt", "cwd"}); prints the route as JSON
+"""
+import argparse
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mlib.common import (main_root, changed_files, emit, git_root, hook_input, load_config, load_state,  # noqa: E402
+                         prompt_hash, task_active)
+from mlib.flow import record_route, sg_installed  # noqa: E402
+from mlib.route import route  # noqa: E402
+
+NOT_USER = ("<agent-message", "<task-notification", "<command-", "<local-command", "<system-reminder")
+
+
+def build(prompt, cwd, label=None):
+    root, work = main_root(cwd), git_root(cwd)  # state in the main checkout; files where the session works
+    cfg = load_config(root)
+    state = load_state(root) if root else {}
+    task = state.get("task") or {}
+    changed = changed_files(work, task.get("base"), task.get("untracked", [])) if root and task_active(state) else []
+    r = route(prompt, cfg, changed, label=label, sg_installed=sg_installed())
+    r["root"] = root
+    r["allowModel"] = bool(cfg["classifier"].get("useModel", True))
+    r["classifierModel"] = cfg["classifier"].get("model", "haiku")
+    return r, root
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("prompt", nargs="?")
+    ap.add_argument("--hook", action="store_true")
+    ap.add_argument("--mod", action="store_true")
+    ap.add_argument("--label")
+    a = ap.parse_args()
+
+    if a.hook:
+        inp = hook_input()
+        prompt = inp.get("prompt") or ""
+        if not prompt.strip() or prompt.lstrip().startswith(NOT_USER) or prompt.lstrip().startswith("/"):
+            return 0
+        root = main_root(inp.get("cwd") or ".")
+        if not root:
+            return 0  # outside git only the mod routes (it cannot tell this hook it already did)
+        st = load_state(root)
+        if st.get("cardBy") == "mod" and st.get("cardHash") == prompt_hash(prompt) and \
+                time.time() - st.get("cardAt", 0) < 300:
+            return 0  # the mod already routed this prompt
+        r, root = build(prompt, inp.get("cwd") or ".")
+        notes = record_route(root, r, prompt, "hook")
+        emit({"hookSpecificOutput": {"hookEventName": "UserPromptSubmit",
+                                     "additionalContext": r["card"] + ("\n" + "\n".join(notes) if notes else "")}})
+        return 0
+
+    if a.mod:
+        inp = hook_input()
+        prompt, cwd = inp.get("prompt") or "", inp.get("cwd") or "."
+        r, root = build(prompt, cwd, label=a.label or inp.get("label"))
+        r["notes"] = []
+        if root and not (r["unclear"] and r["allowModel"] and not (a.label or inp.get("label"))):
+            r["notes"] = record_route(root, r, prompt, "mod")
+            r["recorded"] = True
+        emit(r)
+        return 0
+
+    if not a.prompt:
+        ap.error("give a prompt, --hook or --mod")
+    r, _ = build(a.prompt, os.getcwd(), label=a.label)
+    emit(r)
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

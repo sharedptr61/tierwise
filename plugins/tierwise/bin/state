@@ -1,0 +1,122 @@
+#!/usr/bin/env python3
+"""tierwise's task state and ledger in .tierwise/.
+
+  state show                         print state.json
+  state get KEY[.SUB]                print one value
+  state set KEY=JSON ...             set values (KEY may be dotted: task.plan=".tierwise/plans/x.md")
+  state init                         create .tierwise/ and auto-detect .claude/tierwise.json if missing
+  state detect                       print auto-detected check commands
+  state close                        close the active task
+  state record-review code|security|principal   record a review done outside tierwise's agents
+  state ledger "text"                append a ledger line
+  state decision "decision · reason · rejected · who"   append to decisions.md
+  state hook session-start|pre-compact|post-model-switch   (stdin: hook JSON)
+"""
+import json
+import os
+import sys
+import time
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mlib import checks as C  # noqa: E402
+from mlib.common import (main_root, emit, ensure_layout, git_root, hook_input, ledger, load_state, locked_state, mdir,  # noqa
+                         now_iso, task_active)
+from mlib.flow import ensure_config  # noqa: E402
+
+
+def need_root(cwd="."):
+    root = git_root(cwd)
+    if not root:
+        print("state: not inside a git repository", file=sys.stderr)
+        sys.exit(2)
+    return root
+
+
+def hook(kind):
+    inp = hook_input()
+    root = main_root(inp.get("cwd") or ".")
+    if not root or not os.path.isdir(mdir(root)):
+        return 0
+    st = load_state(root)
+    if kind == "session-start":
+        if task_active(st):
+            t = st["task"]
+            emit({"hookSpecificOutput": {"hookEventName": "SessionStart", "additionalContext": (
+                f"[tierwise] Active task {t['id']}: {t['class']} · {t['tier']} · phase {t['phase']}"
+                f"{' · plan ' + t['plan'] if t.get('plan') else ''}. Before continuing, read .tierwise/state.json, "
+                "the last entries of .tierwise/ledger.md and .tierwise/decisions.md; do not re-explore what they "
+                "record.")}})
+    elif kind == "pre-compact":
+        if task_active(st):
+            ledger(root, f"compaction ({inp.get('trigger', '?')}) during task {st['task']['id']} · phase "
+                         f"{st['task']['phase']}")
+    elif kind == "post-model-switch":
+        ledger(root, "model switch: " + json.dumps({k: v for k, v in inp.items()
+                                                    if k not in ("transcript_path", "session_id", "cwd")})[:300])
+    return 0
+
+
+def set_path(d, dotted, value):
+    keys = dotted.split(".")
+    for k in keys[:-1]:
+        d = d.setdefault(k, {})
+    d[keys[-1]] = value
+
+
+def main(argv):
+    if not argv or argv[0] in ("-h", "--help"):
+        print(__doc__)
+        return 0
+    cmd, args = argv[0], argv[1:]
+    if cmd == "hook":
+        return hook(args[0] if args else "")
+    root = need_root()
+    if cmd == "show":
+        print(json.dumps(load_state(root), indent=2))
+    elif cmd == "get":
+        v = load_state(root)
+        for k in args[0].split("."):
+            v = v.get(k) if isinstance(v, dict) else None
+        print(json.dumps(v))
+    elif cmd == "set":
+        with locked_state(root) as s:
+            for pair in args:
+                k, _, raw = pair.partition("=")
+                try:
+                    val = json.loads(raw)
+                except ValueError:
+                    val = raw
+                set_path(s, k, val)
+    elif cmd == "init":
+        ensure_layout(root)
+        print(ensure_config(root) or "tierwise: .claude/tierwise.json already present")
+    elif cmd == "detect":
+        print(json.dumps(C.detect(root), indent=2))
+    elif cmd == "close":
+        with locked_state(root) as s:
+            if s.get("task"):
+                s["task"]["phase"] = "closed"
+                s["task"]["closed"] = now_iso()
+                ledger(root, f"task {s['task']['id']} closed")
+    elif cmd == "record-review":
+        with locked_state(root) as s:
+            if not task_active(s):
+                print("state: no active task", file=sys.stderr)
+                return 1
+            s["task"].setdefault("reviews", {})[args[0]] = time.time()
+        ledger(root, f"review recorded by hand: {args[0]}")
+    elif cmd == "ledger":
+        ensure_layout(root)
+        ledger(root, " ".join(args))
+    elif cmd == "decision":
+        ensure_layout(root)
+        with open(mdir(root, "decisions.md"), "a") as f:
+            f.write(f"- {now_iso()} {' '.join(args)}\n")
+    else:
+        print(__doc__, file=sys.stderr)
+        return 2
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main(sys.argv[1:]))

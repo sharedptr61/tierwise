@@ -1,0 +1,575 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>:root{padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}body{margin:0}[hidden]{display:none!important}</style>
+</head>
+<body>
+<title>Tierwise Head-to-Head</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap">
+<style>
+/* Layout: a banded report. Hero band with the four headline results, then numbered sections in a 70rem column;
+   charts sit in cards, two per row on desktop, one per row on phones. */
+:root {
+  --bg: #f6f7f9; --surface: #ffffff; --fg: #15181e; --muted: #596273; --line: #dde1e8; --soft: #eef1f5;
+  --hero: #0f1b2d; --hero-fg: #eef3fb; --hero-muted: #a9b8cf; --hero-line: #24344d;
+  --hero-good: #39ff14; --hero-good-soft: #9dff8a;  /* neon green; the hero band is dark in both themes */
+  --Tierwise: #257de0; --opus: #f47230; --fable: #00b894;
+  --m-200: #9dc8f7; --m-300: #6aabf1; --m-450: #257de0; --m-600: #1757ac;
+  --good: #0a7d1f; --warn: #9a5b00;
+  --display: "Space Grotesk", "Segoe UI", system-ui, sans-serif;
+  --body: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) {
+  --bg: #111419; --surface: #181c23; --fg: #e8ebf0; --muted: #9aa3b2; --line: #2a303a; --soft: #1f242c;
+  --hero: #0b1422; --hero-fg: #eef3fb; --hero-muted: #9fb0c8; --hero-line: #22324a;
+  --Tierwise: #338ced; --opus: #e76624; --fable: #00a888;
+  --m-200: #84b9f3; --m-300: #6aabf1; --m-450: #338ced; --m-600: #1b64be;
+  --good: #3fc25a; --warn: #e0a43a; color-scheme: dark } }
+:root[data-theme="dark"] {
+  --bg: #111419; --surface: #181c23; --fg: #e8ebf0; --muted: #9aa3b2; --line: #2a303a; --soft: #1f242c;
+  --hero: #0b1422; --hero-fg: #eef3fb; --hero-muted: #9fb0c8; --hero-line: #22324a;
+  --Tierwise: #338ced; --opus: #e76624; --fable: #00a888;
+  --m-200: #84b9f3; --m-300: #6aabf1; --m-450: #338ced; --m-600: #1b64be;
+  --good: #3fc25a; --warn: #e0a43a; color-scheme: dark }
+body { background: var(--bg); color: var(--fg); font: 15px/1.6 var(--body); }
+.inner { max-width: 70rem; margin: 0 auto; padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.hero { background: var(--hero); color: var(--hero-fg); margin-top: calc(-1 * env(safe-area-inset-top, 0px)); padding-top: calc(env(safe-area-inset-top, 0px) + 3rem); padding-bottom: 3rem; }
+.hero .inner { display: grid; gap: 1.4rem; }
+.main { padding-block: 3rem 4rem; display: grid; gap: 3.5rem; }
+h1, h2, h3 { font-family: var(--display); text-wrap: balance; margin: 0; line-height: 1.15; }
+h1 { font-size: clamp(2.1rem, 5.4vw, 3.4rem); font-weight: 700; letter-spacing: -0.02em; }
+h2 { font-size: clamp(1.35rem, 3vw, 1.7rem); font-weight: 600; }
+h3 { font-size: 1.02rem; font-weight: 600; }
+p { margin: 0; max-width: 68ch; }
+.eyebrow { font: 500 0.75rem/1 var(--mono); letter-spacing: 0.08em; text-transform: uppercase; color: var(--muted); }
+.hero .eyebrow { color: var(--hero-muted); }
+.lead { font-size: 1.12rem; color: var(--hero-muted); max-width: 64ch; }
+.lead b { color: var(--hero-fg); font-weight: 600; }
+.legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.4rem; font-size: 0.9rem; }
+.legend span { display: inline-flex; align-items: center; gap: 0.45rem; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; flex: none; }
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 14.5rem), 1fr)); gap: 1px; background: var(--hero-line); border: 1px solid var(--hero-line); border-radius: 12px; overflow: hidden; }
+.kpi { background: var(--hero); padding: 1.2rem 1.3rem; display: grid; gap: 0.35rem; align-content: start; min-width: 0; }
+.kpi .k-label { font: 500 0.72rem/1.2 var(--mono); letter-spacing: 0.07em; text-transform: uppercase; color: var(--hero-muted); }
+.kpi .k-big { font: 600 2.3rem/1.05 var(--display); letter-spacing: -0.02em; color: var(--hero-good); text-shadow: 0 0 14px rgb(57 255 20 / 0.45); }
+.kpi .k-big .unit { font-size: 1.1rem; font-weight: 500; color: var(--hero-good-soft); margin-left: 0.25rem; }
+.kpi p { font-size: 0.9rem; color: var(--hero-muted); }
+.hero .legend { color: var(--hero-muted); }
+section { display: grid; gap: 1.1rem; min-width: 0; }
+.sec-head { display: grid; gap: 0.45rem; }
+.sec-head .eyebrow { color: var(--Tierwise); }
+.muted { color: var(--muted); }
+.small { font-size: 0.88rem; }
+.num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.2rem 1.25rem; display: grid; gap: 0.75rem; align-content: start; min-width: 0; }
+.card-head { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: baseline; gap: 0.3rem 1rem; }
+.dir { font: 500 0.7rem/1 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.take { font-size: 0.9rem; }
+.take b { color: var(--Tierwise); font-weight: 600; }
+.grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 26rem), 1fr)); gap: 1rem; }
+.verdicts { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 15rem), 1fr)); gap: 1rem; }
+.verdict { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 1.1rem 1.2rem; display: grid; gap: 0.45rem; align-content: start; min-width: 0; }
+.big { font: 600 2.05rem/1.05 var(--display); letter-spacing: -0.02em; }
+.tilehead { display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 0.4rem; }
+.tlabel { font: 600 0.72rem/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.tile-sub { font-size: 0.9rem; color: var(--muted); }
+.badge { font: 500 0.68rem/1 var(--mono); padding: 0.28rem 0.45rem; border-radius: 4px; white-space: nowrap; border: 1px solid; }
+.badge.meas { color: var(--good); } .badge.calc { color: var(--Tierwise); } .badge.proj { color: var(--muted); }
+.part { font-size: 1.12rem; margin-top: 0.4rem; padding-top: 1rem; border-top: 1px solid var(--line); }
+.seg { display: flex; flex-wrap: wrap; align-items: center; gap: 0.5rem; }
+.seg button { font: 500 0.9rem/1 var(--body); color: var(--fg); background: var(--surface); border: 1px solid var(--line); border-radius: 999px; padding: 0.5rem 0.95rem; cursor: pointer; }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); border-color: var(--fg); }
+.seg button:focus-visible, .hit:focus { outline: 2px solid var(--Tierwise); outline-offset: 2px; }
+.chart { width: 100%; min-width: 0; position: relative; }
+.chart svg { display: block; width: 100%; height: auto; overflow: visible; }
+.chart text { fill: var(--fg); font-family: var(--body); font-size: 12px; }
+.chart .axis text, .chart .sub { fill: var(--muted); font-size: 11px; font-family: var(--mono); }
+.chart .grid line { stroke: var(--line); }
+.chart .val { font-family: var(--mono); font-size: 12px; font-weight: 500; }
+.chart .lbl-m { font-weight: 700; }
+.tablebox { overflow-x: auto; border: 1px solid var(--line); border-radius: 12px; background: var(--surface); }
+table { border-collapse: collapse; width: 100%; font-size: 0.92rem; }
+th, td { padding: 0.65rem 0.9rem; text-align: right; border-bottom: 1px solid var(--line); }
+th:first-child, td:first-child { text-align: left; }
+thead th { font: 500 0.72rem/1.2 var(--mono); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); background: var(--soft); white-space: nowrap; }
+tbody tr:last-child td { border-bottom: 0; }
+table.compare { min-width: 36rem; } table.compare td { white-space: nowrap; }
+table.compare td.m { font-weight: 600; background: color-mix(in srgb, var(--Tierwise) 7%, transparent); }
+table.method { min-width: 44rem; } table.method td { vertical-align: top; }
+table.method td:nth-child(3), table.method th:nth-child(3), table.method td:nth-child(4), table.method th:nth-child(4) { text-align: left; }
+table.method td:nth-child(3) { color: var(--muted); font-size: 0.86rem; min-width: 16rem; }
+table.routes td, table.routes th { text-align: left; vertical-align: top; } table.routes td:first-child { width: 38%; }
+.chip { display: inline-block; font: 500 0.75rem/1 var(--mono); padding: 0.3rem 0.5rem; border-radius: 999px; margin: 0.1rem 0.25rem 0.1rem 0; border: 1px solid var(--line); background: var(--soft); white-space: nowrap; }
+ul.plain { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.5rem; }
+ul.plain li { max-width: 68ch; }
+.status { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+.status i { width: 1.35rem; height: 1.35rem; border-radius: 50%; display: inline-grid; place-items: center; font: 700 0.8rem/1 var(--body); font-style: normal; color: #fff; flex: none; }
+.status.good i { background: var(--good); } .status.warn i { background: var(--warn); }
+code, .path { font-family: var(--mono); font-size: 0.85em; overflow-wrap: anywhere; }
+#tip { position: absolute; pointer-events: none; background: var(--fg); color: var(--bg); font: 12px/1.45 var(--body); padding: 0.5rem 0.65rem; border-radius: 6px; max-width: 17rem; z-index: 5; box-shadow: 0 4px 14px rgb(0 0 0 / 0.18); }
+.hit { cursor: default; }
+.hit:hover .bar { opacity: 0.85; }
+.mixlegend { display: grid; gap: 0.35rem; }
+.mixrow { display: grid; grid-template-columns: 12px 1fr auto auto; align-items: center; gap: 0.6rem; font-size: 0.9rem; }
+.mixrow .num { text-align: right; } .mixrow .share { color: var(--muted); min-width: 3.2rem; }
+footer { font-size: 0.85rem; color: var(--muted); display: grid; gap: 0.4rem; padding-bottom: 3rem; }
+</style>
+
+<div class="hero"><div class="inner">
+  <div class="eyebrow">Evaluation report · November 2026 · measured costs, hidden tests, blind judging</div>
+  <h1>Tierwise vs one model for everything</h1>
+  <p class="lead">The same research and build jobs, done three ways: with <b>Tierwise</b>, which gives each step to the model it needs, with <b>every agent on Opus</b>, and with <b>every agent on Fable</b>. Tierwise ran three times; its results are the average. Every request was priced, every build ran against 19 hidden acceptance tests, and two judges scored the work without knowing who produced it.</p>
+  <div class="kpis" id="kpis"></div>
+  <div class="legend" aria-label="Approaches">
+    <span><i class="sw" style="background:var(--Tierwise)"></i>Tierwise</span>
+    <span><i class="sw" style="background:var(--opus)"></i>All-Opus</span>
+    <span><i class="sw" style="background:var(--fable)"></i>All-Fable</span>
+  </div>
+</div></div>
+
+<div class="inner main">
+
+<section id="glance">
+  <div class="sec-head"><div class="eyebrow">1 · Performance at a glance</div><h2>Opus-level research and builds that beat Fable's, for less than either</h2>
+  <p class="muted">Four measures of the same job. Tierwise's bars are the average of its three runs; the thin line and dots show the spread of the individual runs.</p></div>
+  <div class="grid2">
+    <div class="card"><div class="card-head"><h3>Cost per job</h3><span class="dir">lower is better</span></div><div class="chart" id="c-cost" role="img" aria-label="Cost per job"></div><p class="take" id="k-cost"></p></div>
+    <div class="card"><div class="card-head"><h3>Time per job</h3><span class="dir">lower is better</span></div><div class="chart" id="c-time" role="img" aria-label="Minutes per job"></div><p class="take" id="k-time"></p></div>
+    <div class="card"><div class="card-head"><h3>Research quality</h3><span class="dir">blind score of 100 · higher is better</span></div><div class="chart" id="c-res" role="img" aria-label="Research quality"></div><p class="take" id="k-res"></p></div>
+    <div class="card"><div class="card-head"><h3>Build quality</h3><span class="dir">blind score, % of max · higher is better</span></div><div class="chart" id="c-bld" role="img" aria-label="Build quality"></div><p class="take" id="k-bld"></p></div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="sec-head"><div class="eyebrow">2 · How Tierwise does it</div><h2>Each step goes to the model it needs</h2>
+  <p class="muted">Single-model approaches pay top price for every step. Tierwise reserves Fable for judgement-heavy evaluation and Opus for security-sensitive code and review, and gives reading, routine building and test runs to cheaper models.</p></div>
+  <div class="grid2">
+    <div class="tablebox"><table class="routes"><thead><tr><th>Step</th><th>Tierwise's model</th></tr></thead><tbody>
+      <tr><td>Research (4 agents)</td><td><span class="chip">Sonnet ×3</span><span class="chip">Opus ×1</span></td></tr>
+      <tr><td>Evaluating findings (2)</td><td><span class="chip">Fable</span><span class="chip">Opus</span></td></tr>
+      <tr><td>Building (4 units)</td><td><span class="chip">Opus: security checks</span><span class="chip">Opus: budget guard</span><span class="chip">Sonnet: gate</span><span class="chip">Sonnet: docs</span></td></tr>
+      <tr><td>Running the test suites</td><td><span class="chip">Haiku</span></td></tr>
+      <tr><td>Code review and fixes</td><td><span class="chip">Opus</span></td></tr>
+    </tbody></table></div>
+    <div class="card"><div class="card-head"><h3>Where Tierwise's money goes</h3><span class="dir">per job · average of 3 runs</span></div><div class="chart" id="c-mix" role="img" aria-label="Tierwise spend by model"></div><div class="mixlegend" id="mix-legend"></div>
+      <p class="take" id="k-mix"></p></div>
+  </div>
+</section>
+
+<section id="scale">
+  <div class="sec-head"><div class="eyebrow">3 · Savings</div><h2>What Tierwise saves one user, and what that adds up to</h2>
+  <p class="muted">Starting point: one user who spends $200 on API usage for this kind of work without Tierwise. Each figure is worked out from the measured cost and time of the same job done each way, then multiplied by the number of users. Badges show which figures are measured, which are calculated from measurements, and which are projections.</p></div>
+  <div class="seg" role="group" aria-label="Compare Tierwise with">
+    <span class="muted">Without Tierwise means</span>
+    <button type="button" id="b-fable" aria-pressed="true">All-Fable</button>
+    <button type="button" id="b-opus" aria-pressed="false">All-Opus</button>
+  </div>
+
+  <h3 class="part">API cost for one user</h3>
+  <div class="verdicts" id="s-money-tiles"></div>
+  <div class="grid2">
+    <div class="card"><h3>The same work, with and without Tierwise</h3><div class="chart" id="c-same" role="img" aria-label="Cost of the same work with and without Tierwise"></div></div>
+    <div class="card"><h3>What a $200 budget pays for</h3><div class="chart" id="c-buys" role="img" aria-label="Jobs a $200 budget pays for"></div>
+      <p class="muted small">Each block is one complete job: the measured research-and-build workflow.</p></div>
+  </div>
+
+  <h3 class="part">Time for one user</h3>
+  <div class="verdicts" id="s-time-tiles"></div>
+  <div class="card"><h3>Waiting time for the same work</h3><div class="chart" id="c-wait" role="img" aria-label="Waiting time with and without Tierwise"></div>
+    <p class="muted small"><b>What this time is:</b> how long the user waits for the agents to finish, measured as wall-clock time from each run's first model request to its last. It is not the sum of every agent's working time. Time spent writing requests and reviewing results was not measured and is assumed to be the same with and without Tierwise.</p></div>
+
+  <h3 class="part">At scale</h3>
+  <div class="grid2">
+    <div class="card"><h3>API spend for the same work</h3><div class="chart" id="c-scale-money" role="img" aria-label="Spend with and without Tierwise for 1,000 and 2,000 users"></div></div>
+    <div class="card"><h3>Waiting time saved</h3><div class="chart" id="c-scale-time" role="img" aria-label="Waiting time saved for 1,000 and 2,000 users"></div>
+      <p class="muted small">Working days are 8 hours. Each user saves their own time: these totals add up time across people, not one person's time.</p></div>
+  </div>
+
+  <h3 class="part">How every figure is calculated</h3>
+  <div class="tablebox"><table class="method" id="t-method"><thead><tr><th>Figure</th><th>Value</th><th>Calculation</th><th>Type</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id="quality">
+  <div class="sec-head"><div class="eyebrow">4 · Quality in detail</div><h2>What the hidden tests and the judges found</h2></div>
+  <div class="grid2">
+    <div class="card"><div class="status good"><i aria-hidden="true">✓</i>Strengths</div><ul class="plain" id="q-good"></ul></div>
+    <div class="card"><div class="status warn"><i aria-hidden="true">!</i>Where Tierwise still trails</div><ul class="plain" id="q-gap"></ul></div>
+  </div>
+  <div class="tablebox"><table class="compare" id="t-compare"><thead><tr><th>Measure</th><th>Tierwise (avg of 3 runs)</th><th>All-Opus</th><th>All-Fable</th></tr></thead><tbody></tbody></table></div>
+</section>
+
+<section id="method">
+  <div class="sec-head"><div class="eyebrow">5 · Method and limits</div><h2>How the comparison was kept fair</h2></div>
+  <div class="grid2">
+    <div class="card"><h3>Identical conditions</h3><ul class="plain">
+      <li>The same workflow scripts, prompts, stages, reasoning effort per agent and review loop for every approach; only the model of each agent differed.</li>
+      <li>Every build started from its own byte-identical copy of the same code, and was scored by the same 19 hidden acceptance tests, written from the specification and never shown to the builders.</li>
+      <li>Two judges, one Opus and one Fable so neither model family grades only itself, saw anonymised outputs under shuffled letters with every model name and folder path removed, read them in opposite orders, and had to verify claims against the code.</li>
+      <li>Costs are every request priced by its own model and token type: uncached input, cache reads, 5-minute and 1-hour cache writes, output. The method reproduces Claude Code's own cost figures to the cent.</li>
+    </ul></div>
+    <div class="card"><h3>Limits</h3><ul class="plain">
+      <li>Tierwise ran three times; all-Opus and all-Fable once each, on 26 November. Tierwise's runs followed on 27 November with the same scripts and prompts.</li>
+      <li>The judges scored Tierwise's runs together with the all-Opus and all-Fable outputs in one panel (with one output from an earlier Tierwise configuration, not shown), so all scores share a scale.</li>
+      <li>These runs measure Tierwise's model routing inside multi-agent workflows; they do not exercise the plugin's hooks or its check gate.</li>
+      <li>Savings at scale are projections: the measured per-job figures multiplied, assuming users do similar work.</li>
+      <li>Costs are list-price equivalents. On a subscription they are usage of the plan's limits, not a bill.</li>
+    </ul></div>
+  </div>
+</section>
+
+<footer>
+  <div>Sources, in <span class="path">evals/workflow-arms/</span> of the Tierwise repository: <span class="path">results.json</span> (all-Opus and all-Fable cost, time, tests), <span class="path">results-v2.json</span> (Tierwise's three runs), <span class="path">judging-research-v2.json</span> and <span class="path">judging-build-v2.json</span> (blind scores and the letter key), <span class="path">hidden_acceptance.py</span>, <span class="path">runs.json</span> (workflow run ids).</div>
+  <div>Prices per million tokens: Fable $8 in / $40 out, Opus $4 / $20, Sonnet $2 / $10, Haiku $0.10 / $0.50; cache reads $0.20, $0.20, $0.10, $0.01.</div>
+</footer>
+</div>
+<div id="tip" hidden></div>
+
+<script>
+const D = {"arms": {"opus": {"total": {"usd": 11.44, "minutes": 33.3}, "build": {"hidden": [19, 19]}}, "fable": {"total": {"usd": 35.34, "minutes": 60.5}, "build": {"hidden": [18, 19]}}}, "v2": {"runs": [{"run": 1, "research": {"usd": 5.4429, "minutes": 8.2, "by_model": {"sonnet": 0.5992, "opus": 1.831, "fable": 3.0127}}, "build": {"usd": 5.948, "minutes": 21.1, "hidden": [19, 19], "own_tests": 177, "mod_tests": 25, "fix_rounds": 1, "by_model": {"opus": 5.5825, "sonnet": 0.3556, "haiku": 0.0098}}}, {"run": 2, "research": {"usd": 4.952, "minutes": 9.0, "by_model": {"opus": 1.7095, "sonnet": 0.4461, "fable": 2.7964}}, "build": {"usd": 5.6747, "minutes": 21.0, "hidden": [19, 19], "own_tests": 186, "mod_tests": 24, "fix_rounds": 1, "by_model": {"haiku": 0.0106, "opus": 5.2832, "sonnet": 0.3809}}}, {"run": 3, "research": {"usd": 4.6564, "minutes": 9.9, "by_model": {"fable": 2.4374, "sonnet": 0.4526, "opus": 1.7664}}, "build": {"usd": 5.3105, "minutes": 20.1, "hidden": [19, 19], "own_tests": 184, "mod_tests": 25, "fix_rounds": 1, "by_model": {"opus": 4.8678, "haiku": 0.0144, "sonnet": 0.4282}}}], "panel_research": {"Tierwise-v2-1": {"scores": {"opus": 42, "fable": 44}, "important": 0, "ranks": {"opus": 3, "fable": 2}, "valuable": [7, 7], "max": 100}, "Tierwise-v2-3": {"scores": {"opus": 40, "fable": 42}, "important": 0, "ranks": {"opus": 4, "fable": 4}, "valuable": [6, 7], "max": 100}, "opus": {"scores": {"opus": 43, "fable": 40}, "important": 0, "ranks": {"opus": 2, "fable": 5}, "valuable": [7, 6], "max": 100}, "fable": {"scores": {"opus": 45, "fable": 46}, "important": 0, "ranks": {"opus": 1, "fable": 1}, "valuable": [9, 9], "max": 100}, "Tierwise-v2-2": {"scores": {"opus": 40, "fable": 43}, "important": 0, "ranks": {"opus": 5, "fable": 3}, "valuable": [5, 6], "max": 100}}, "panel_build": {"Tierwise-v2-2": {"scores": {"opus": 40, "fable": 36}, "important": 4, "ranks": {"opus": 3, "fable": 3}, "valuable": [], "max": 120}, "Tierwise-v2-3": {"scores": {"opus": 48, "fable": 44}, "important": 0, "ranks": {"opus": 1, "fable": 2}, "valuable": [], "max": 120}, "Tierwise-v2-1": {"scores": {"opus": 39, "fable": 35}, "important": 5, "ranks": {"opus": 4, "fable": 4}, "valuable": [], "max": 120}, "fable": {"scores": {"opus": 39, "fable": 34}, "important": 4, "ranks": {"opus": 5, "fable": 5}, "valuable": [], "max": 120}, "opus": {"scores": {"opus": 45, "fable": 45}, "important": 1, "ranks": {"opus": 2, "fable": 1}, "valuable": [], "max": 120}}}};
+const $ = (s) => document.querySelector(s);
+const NAME = { Tierwise: "Tierwise", opus: "All-Opus", fable: "All-Fable" };
+const ARMS = ["Tierwise", "opus", "fable"];
+const col = (a) => `var(--${a})`;
+const usd = (x) => "$" + x.toFixed(2);
+const fmtN = (x, dp = 0) => x.toLocaleString("en-US", { minimumFractionDigits: dp, maximumFractionDigits: dp });
+const money = (x, dp = 0) => "$" + fmtN(x, dp);
+const hm = (m) => `${Math.floor(m / 60)} h ${String(Math.round(m % 60)).padStart(2, "0")} min`;
+
+// ---- data: Tierwise = the three runs of the current version; Opus and Fable single runs
+const R = D.v2.runs, avg = (f) => R.reduce((t, r) => t + f(r), 0) / R.length;
+const job = {
+  Tierwise: { usd: Math.round(avg(r => r.research.usd + r.build.usd) * 100) / 100, min: Math.round(avg(r => r.research.minutes + r.build.minutes) * 10) / 10,
+             runsUsd: R.map(r => Math.round((r.research.usd + r.build.usd) * 100) / 100), runsMin: R.map(r => Math.round((r.research.minutes + r.build.minutes) * 10) / 10) },
+  opus: { usd: D.arms.opus.total.usd, min: D.arms.opus.total.minutes },
+  fable: { usd: D.arms.fable.total.usd, min: D.arms.fable.total.minutes },
+};
+const PR = D.v2.panel_research, PB = D.v2.panel_build, MR = ["Tierwise-v2-1", "Tierwise-v2-2", "Tierwise-v2-3"];
+const pct = (e) => (e.scores.opus + e.scores.fable) / e.max * 100;
+const qual = {
+  research: { Tierwise: MR.reduce((t, n) => t + pct(PR[n]), 0) / 3, runs: MR.map(n => pct(PR[n])), opus: pct(PR.opus), fable: pct(PR.fable) },
+  build: { Tierwise: MR.reduce((t, n) => t + pct(PB[n]), 0) / 3, runs: MR.map(n => pct(PB[n])), opus: pct(PB.opus), fable: pct(PB.fable) },
+};
+const hidden = { Tierwise: R.map(r => r.build.hidden[0]), opus: D.arms.opus.build.hidden[0], fable: D.arms.fable.build.hidden[0] };
+
+// ---- tooltip and svg helpers
+const tip = $("#tip");
+function bindTip(el, html) {
+  el.classList.add("hit"); el.setAttribute("tabindex", "0");
+  const show = (ev) => {
+    tip.innerHTML = html; tip.hidden = false;
+    const r = el.getBoundingClientRect(), base = document.body.getBoundingClientRect();
+    let x = (ev && ev.clientX ? ev.clientX : r.left + r.width / 2) - base.left + 12;
+    const y = (ev && ev.clientY ? ev.clientY : r.top) - base.top + 14;
+    const w = tip.offsetWidth, vw = document.documentElement.clientWidth;
+    if (x + w > vw - 8) x = vw - w - 8;
+    tip.style.left = x + "px"; tip.style.top = y + "px";
+  };
+  el.addEventListener("mousemove", show); el.addEventListener("focus", show);
+  el.addEventListener("mouseleave", () => tip.hidden = true); el.addEventListener("blur", () => tip.hidden = true);
+}
+const NS = "http://www.w3.org/2000/svg";
+function svgEl(tag, attrs, parent) { const e = document.createElementNS(NS, tag); for (const k in attrs) e.setAttribute(k, attrs[k]); if (parent) parent.appendChild(e); return e; }
+function txt(parent, x, y, s, attrs = {}) { const t = svgEl("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
+function rR(x, y, w, h, r) { r = Math.min(r, w, h / 2); return `M${x},${y}h${w - r}a${r},${r} 0 0 1 ${r},${r}v${h - 2 * r}a${r},${r} 0 0 1 -${r},${r}h-${w - r}z`; }
+function rT(x, y, w, h, r) { r = Math.min(r, h, w / 2); return `M${x},${y + h}v-${h - r}a${r},${r} 0 0 1 ${r},-${r}h${w - 2 * r}a${r},${r} 0 0 1 ${r},${r}v${h - r}z`; }
+function niceTicks(max, n) { const raw = max / n, p = Math.pow(10, Math.floor(Math.log10(raw))); const step = [1, 2, 2.5, 5, 10].map(s => s * p).find(s => s >= raw); const out = []; for (let v = 0; v <= max + 1e-9; v += step) out.push(+v.toFixed(6)); return out; }
+function svgBox(id, H) { const box = $(id); box.innerHTML = ""; const W = Math.max(280, box.clientWidth); return [svgEl("svg", { viewBox: `0 0 ${W} ${H}`, width: W, height: H }, box), W]; }
+
+// ---- 1. comparison bars: Tierwise first, run spread as a whisker beside the value
+function compareBars(id, rows, max, fmt, tickFmt) {
+  const rowH = 26, gap = 16, top = 6, bottom = 24, H = top + rows.length * (rowH + gap) - gap + bottom;
+  const [svg, W] = svgBox(id, H), left = 82, right = 74, x = (v) => left + v / max * (W - left - right);
+  const g = svgEl("g", { class: "grid" }, svg), ax = svgEl("g", { class: "axis" }, svg);
+  for (const t of niceTicks(max, W < 440 ? 3 : 4)) { svgEl("line", { x1: x(t), x2: x(t), y1: top, y2: H - bottom }, g); txt(ax, x(t), H - 6, tickFmt(t), { "text-anchor": "middle" }); }
+  rows.forEach((r, i) => {
+    const y = top + i * (rowH + gap), cy = y + rowH / 2, grp = svgEl("g", {}, svg);
+    txt(svg, 0, cy + 4, NAME[r.arm], { class: r.arm === "Tierwise" ? "lbl-m" : "" });
+    svgEl("path", { d: rR(left, y, Math.max(2, x(r.v) - left), rowH, 5), fill: col(r.arm), class: "bar" }, grp);
+    let end = x(r.v);
+    if (r.runs) {
+      const lo = x(Math.min(...r.runs)), hi = x(Math.max(...r.runs));
+      svgEl("line", { x1: lo, x2: hi, y1: cy, y2: cy, stroke: "var(--fg)", "stroke-width": 1.5, opacity: 0.55 }, grp);
+      for (const v of r.runs) svgEl("circle", { cx: x(v), cy, r: 3.2, fill: "var(--surface)", stroke: "var(--fg)", "stroke-width": 1.5 }, grp);
+      end = Math.max(end, hi + 4);
+    }
+    bindTip(grp, r.tip);
+    txt(svg, end + 8, cy + 4, fmt(r.v), { class: "val" });
+  });
+}
+function glance() {
+  const tipRuns = (runs, f) => `<br>Runs: ${runs.map(f).join(", ")}`;
+  compareBars("#c-cost", ARMS.map(a => ({ arm: a, v: job[a].usd, runs: job[a].runsUsd,
+    tip: `<b>${NAME[a]}</b><br>${usd(job[a].usd)} per job${a === "Tierwise" ? " (average)" + tipRuns(job[a].runsUsd, usd) : ""}` })), 40, usd, (t) => "$" + t);
+  compareBars("#c-time", ARMS.map(a => ({ arm: a, v: job[a].min, runs: job[a].runsMin,
+    tip: `<b>${NAME[a]}</b><br>${job[a].min.toFixed(1)} min per job${a === "Tierwise" ? " (average)" + tipRuns(job[a].runsMin, v => v.toFixed(1) + " min") : ""}` })), 70, (v) => v.toFixed(1) + " min", (t) => t);
+  for (const [st, id] of [["research", "#c-res"], ["build", "#c-bld"]]) {
+    const unit = st === "build" ? "%" : "";
+    compareBars(id, ARMS.map(a => ({ arm: a, v: qual[st][a], runs: a === "Tierwise" ? qual[st].runs : null,
+      tip: `<b>${NAME[a]}</b><br>${qual[st][a].toFixed(1)}${unit}${st === "research" ? " of 100" : " of the maximum"}${a === "Tierwise" ? " (average)" + tipRuns(qual[st].runs, v => v.toFixed(st === "build" ? 1 : 0) + unit) : ""}` })),
+      100, (v) => v.toFixed(1) + unit, (t) => t + unit);
+  }
+  const m = job.Tierwise;
+  $("#k-cost").innerHTML = `<b>${Math.round((1 - m.usd / job.fable.usd) * 100)}% less</b> than all-Fable and ${Math.round((1 - m.usd / job.opus.usd) * 100)}% less than all-Opus.`;
+  $("#k-time").innerHTML = `<b>${(job.fable.min / m.min).toFixed(1)}× faster</b> than all-Fable and ${Math.round((1 - m.min / job.opus.min) * 100)}% faster than all-Opus.`;
+  $("#k-res").innerHTML = `<b>Level with all-Opus</b> (${qual.research.Tierwise.toFixed(1)} vs ${qual.research.opus.toFixed(0)}); all-Fable leads at ${qual.research.fable.toFixed(0)}.`;
+  $("#k-bld").innerHTML = `<b>Ahead of all-Fable</b> on average (${qual.build.Tierwise.toFixed(1)}% vs ${qual.build.fable.toFixed(1)}%); all-Opus leads at ${qual.build.opus.toFixed(1)}%.`;
+}
+function kpis() {
+  const m = job.Tierwise, items = [
+    ["Cost per job", `${Math.round((1 - m.usd / job.fable.usd) * 100)}<span class="unit">% less</span>`, `than all-Fable: ${usd(m.usd)} vs ${usd(job.fable.usd)}. Also below all-Opus (${usd(job.opus.usd)}).`],
+    ["Speed", `${(job.fable.min / m.min).toFixed(1)}<span class="unit">× faster</span>`, `than all-Fable: ${m.min.toFixed(1)} vs ${job.fable.min.toFixed(1)} minutes per job.`],
+    ["Hidden tests", `19<span class="unit">/19</span>`, `in every one of Tierwise's three runs. All-Fable: ${hidden.fable}/19.`],
+    ["Research quality", `${qual.research.Tierwise.toFixed(0)}<span class="unit">/100</span>`, `level with all-Opus (${qual.research.opus.toFixed(0)}); builds ahead of all-Fable on average.`],
+  ];
+  const box = $("#kpis"); box.innerHTML = "";
+  for (const [l, big, sub] of items) {
+    const d = document.createElement("div"); d.className = "kpi";
+    const a = document.createElement("div"); a.className = "k-label"; a.textContent = l;
+    const b = document.createElement("div"); b.className = "k-big"; b.innerHTML = big;  // fixed markup built above, no data text
+    const c = document.createElement("p"); c.textContent = sub;
+    d.append(a, b, c); box.appendChild(d);
+  }
+}
+
+// ---- 2. spend by model
+function drawMix() {
+  const by = {}; for (const r of R) for (const st of ["research", "build"]) for (const [k, v] of Object.entries(r[st].by_model)) by[k] = (by[k] || 0) + v / R.length;
+  const order = [["opus", "Opus", "--m-450"], ["fable", "Fable", "--m-600"], ["sonnet", "Sonnet", "--m-300"], ["haiku", "Haiku", "--m-200"]].filter(o => by[o[0]]);
+  const total = order.reduce((s, o) => s + by[o[0]], 0);
+  const [svg, W] = svgBox("#c-mix", 40), barH = 32;
+  let acc = 0;
+  order.forEach(([k, label, tok], i) => {
+    const w = by[k] / total * W, grp = svgEl("g", {}, svg), gapw = i < order.length - 1 ? 2 : 0;
+    svgEl("rect", { x: acc, y: 4, width: Math.max(1, w - gapw), height: barH, rx: 4, fill: `var(${tok})`, class: "bar" }, grp);
+    bindTip(grp, `<b>${label}</b>: ${usd(by[k])} per job (${Math.round(by[k] / total * 100)}%)`);
+    if (w > 46) txt(svg, acc + 8, 4 + barH / 2 + 4, Math.round(by[k] / total * 100) + "%", { class: "val", style: "fill:#ffffff" });
+    acc += w;
+  });
+  const lg = $("#mix-legend"); lg.innerHTML = "";
+  for (const [k, label, tok] of order) {
+    const row = document.createElement("div"); row.className = "mixrow";
+    const sw = document.createElement("i"); sw.className = "sw"; sw.style.background = `var(${tok})`;
+    const n = document.createElement("span"); n.textContent = label;
+    const v = document.createElement("span"); v.className = "num"; v.textContent = usd(by[k]);
+    const p = document.createElement("span"); p.className = "num share"; p.textContent = (by[k] / total * 100 < 1 ? "<1" : Math.round(by[k] / total * 100)) + "%";
+    row.append(sw, n, v, p); lg.appendChild(row);
+  }
+  $("#k-mix").innerHTML = `Opus and Fable, the two premium models, take <b>${Math.round((by.opus + by.fable) / total * 100)}%</b> of the spend, on the steps that decide quality. Sonnet and Haiku do the rest for ${usd((by.sonnet || 0) + (by.haiku || 0))} per job.`;
+}
+
+// ---- 3. savings: one user first; every scaled figure is the rounded one-user figure × users
+const BUDGET = 200, USERS = [1000, 2000];
+let base = "fable";
+const cents = (x) => Math.round(x * 100) / 100;
+function user() {
+  const b = job[base], m = job.Tierwise, jobs = BUDGET / b.usd;
+  const spend = cents(jobs * m.usd), saved = cents(BUDGET - spend);
+  const baseMin = Math.round(jobs * b.min), mMin = Math.round(jobs * m.min);
+  return { b, m, jobs, spend, saved, pct: saved / BUDGET, spendLo: cents(jobs * Math.min(...m.runsUsd)), spendHi: cents(jobs * Math.max(...m.runsUsd)),
+    mJobs: BUDGET / m.usd, mult: b.usd / m.usd, baseMin, mMin, savedMin: baseMin - mMin, pctTime: (baseMin - mMin) / baseMin };
+}
+function tileRow(id, items) {
+  const box = $(id); box.innerHTML = "";
+  for (const [kind, label, big, sub] of items) {
+    const d = document.createElement("div"); d.className = "verdict";
+    const head = document.createElement("div"); head.className = "tilehead";
+    const l = document.createElement("span"); l.className = "tlabel"; l.textContent = label;
+    const k = document.createElement("span"); k.className = "badge " + kind; k.textContent = kind === "meas" ? "measured" : kind === "calc" ? "from measurements" : "projection";
+    head.append(l, k);
+    const b = document.createElement("div"); b.className = "big num"; b.textContent = big;
+    const t = document.createElement("p"); t.className = "tile-sub"; t.textContent = sub;
+    d.append(head, b, t); box.appendChild(d);
+  }
+}
+function tiles() {
+  const u = user(), B = NAME[base];
+  tileRow("#s-money-tiles", [
+    ["calc", "Saved per user", money(u.saved, 2), `of a ${money(BUDGET)} ${B} spend: ${(u.pct * 100).toFixed(1)}% less for the same work.`],
+    ["calc", "Same work with Tierwise", money(u.spend, 2), `instead of ${money(BUDGET)}. Each of Tierwise's three runs alone: ${money(u.spendLo, 2)} to ${money(u.spendHi, 2)}.`],
+    ["calc", "Work per $200", `${u.mult.toFixed(2)}×`, `${u.mJobs.toFixed(1)} jobs instead of ${u.jobs.toFixed(1)} from the same budget.`],
+  ]);
+  tileRow("#s-time-tiles", [
+    ["calc", "Without Tierwise", hm(u.baseMin), `waiting for ${u.jobs.toFixed(1)} ${B} jobs at ${u.b.min.toFixed(1)} min each.`],
+    ["calc", "With Tierwise", hm(u.mMin), `for the same ${u.jobs.toFixed(1)} jobs at ${u.m.min.toFixed(1)} min each.`],
+    ["calc", "Saved per user", hm(u.savedMin), `${(u.pctTime * 100).toFixed(1)}% less waiting for the same work.`],
+  ]);
+}
+function drawSame() {
+  const u = user(), H = 290, top = 26, bottom = 42, left = 46;
+  const [svg, W] = svgBox("#c-same", H), y = (v) => top + (1 - v / BUDGET) * (H - top - bottom);
+  const g = svgEl("g", { class: "grid" }, svg), ax = svgEl("g", { class: "axis" }, svg);
+  for (const t of [0, 50, 100, 150, 200]) { svgEl("line", { x1: left, x2: W, y1: y(t), y2: y(t) }, g); txt(ax, left - 8, y(t) + 4, "$" + t, { "text-anchor": "end" }); }
+  const slot = (W - left) / 2, bw = Math.min(96, slot * 0.5), x1 = left + slot / 2 - bw / 2, x2 = left + slot * 1.5 - bw / 2;
+  const g1 = svgEl("g", {}, svg);
+  svgEl("path", { d: rT(x1, y(BUDGET), bw, y(0) - y(BUDGET), 5), fill: col(base), class: "bar" }, g1);
+  bindTip(g1, `<b>Without Tierwise (${NAME[base]})</b><br>${money(BUDGET)} for ${u.jobs.toFixed(2)} jobs at ${usd(u.b.usd)} each`);
+  txt(svg, x1 + bw / 2, y(BUDGET) - 8, money(BUDGET), { class: "val", "text-anchor": "middle" });
+  txt(svg, x1 + bw / 2, H - 22, "Without Tierwise", { "text-anchor": "middle", "font-weight": 600 });
+  txt(svg, x1 + bw / 2, H - 6, NAME[base], { class: "sub", "text-anchor": "middle" });
+  const g2 = svgEl("g", {}, svg);
+  svgEl("rect", { x: x2, y: y(BUDGET), width: bw, height: y(u.spend) - y(BUDGET), fill: "none", stroke: col("Tierwise"), "stroke-width": 1.5, "stroke-dasharray": "4 3", rx: 5 }, g2);
+  svgEl("path", { d: rT(x2, y(u.spend), bw, y(0) - y(u.spend), 5), fill: col("Tierwise"), class: "bar" }, g2);
+  bindTip(g2, `<b>With Tierwise</b><br>The same ${u.jobs.toFixed(2)} jobs at ${usd(u.m.usd)} each: ${money(u.spend, 2)}<br>Single runs: ${money(u.spendLo, 2)} to ${money(u.spendHi, 2)}`);
+  const inside = y(0) - y(u.spend) > 26;
+  txt(svg, x2 + bw / 2, inside ? y(u.spend) + 18 : y(u.spend) - 8, money(u.spend, 2), { class: "val", "text-anchor": "middle", style: inside ? "fill:#ffffff" : "" });
+  const gapH = y(u.spend) - y(BUDGET);
+  if (gapH > 50) {
+    const mid = y(BUDGET) + gapH / 2;
+    txt(svg, x2 + bw / 2, mid - 10, "saves", { class: "sub", "text-anchor": "middle" });
+    txt(svg, x2 + bw / 2, mid + 6, money(u.saved, 2), { class: "val", "text-anchor": "middle" });
+    txt(svg, x2 + bw / 2, mid + 21, `${(u.pct * 100).toFixed(1)}% less`, { class: "sub", "text-anchor": "middle" });
+  } else {
+    txt(svg, x2 + bw / 2, y(BUDGET) - 8, `saves ${money(u.saved, 2)}`, { class: "val", "text-anchor": "middle" });
+  }
+  txt(svg, x2 + bw / 2, H - 22, "With Tierwise", { "text-anchor": "middle", "font-weight": 600 });
+  txt(svg, x2 + bw / 2, H - 6, "average of 3 runs", { class: "sub", "text-anchor": "middle" });
+}
+function drawBuys() {
+  const u = user(), rows = [[base, u.jobs, "Without Tierwise"], ["Tierwise", u.mJobs, "With Tierwise"]];
+  const box = $("#c-buys"), W0 = Math.max(280, box.clientWidth), perRow = Math.ceil(Math.max(u.jobs, u.mJobs)), gap = 3;
+  const cell = Math.max(8, Math.min(22, (W0 - 2) / perRow - gap)), rowH = cell + 40, H = rows.length * rowH + 66;
+  const [svg] = svgBox("#c-buys", H);
+  rows.forEach(([a, n, label], i) => {
+    const y = i * rowH;
+    txt(svg, 0, y + 14, `${label}: ${n.toFixed(1)} jobs`, { "font-weight": 600 });
+    const grp = svgEl("g", {}, svg);
+    for (let k = 0; k < Math.ceil(n); k++) {
+      const frac = Math.min(1, n - k), x = k * (cell + gap);
+      svgEl("rect", { x, y: y + 24, width: cell, height: cell, rx: 3, fill: "var(--soft)", stroke: "var(--line)" }, grp);
+      svgEl("rect", { x, y: y + 24, width: Math.max(1, cell * frac), height: cell, rx: 3, fill: col(a) }, grp);
+    }
+    bindTip(grp, `<b>${label}</b><br>${money(BUDGET)} ÷ ${usd(job[a].usd)} per job = ${n.toFixed(2)} jobs`);
+  });
+  txt(svg, 0, rows.length * rowH + 30, `${u.mult.toFixed(2)}× the work`, { class: "val", style: "font-size:22px;font-family:var(--display)" });
+  txt(svg, 0, rows.length * rowH + 52, `from the same ${money(BUDGET)}`, { class: "sub" });
+}
+function hbarPair(id, rows, max, labelFn) {
+  const rowH = 30, gap = 12, top = 4, H = top + rows.length * (rowH + gap) - gap + 4;
+  const [svg, W] = svgBox(id, H), left = 124, right = 96, x = (v) => left + v / max * (W - left - right);
+  rows.forEach((r, i) => {
+    const y = top + i * (rowH + gap), grp = svgEl("g", {}, svg);
+    txt(svg, 0, y + rowH / 2 - 2, r.label, { "font-weight": 600 });
+    txt(svg, 0, y + rowH / 2 + 13, r.sub, { class: "sub" });
+    svgEl("path", { d: rR(left, y, Math.max(2, x(r.v) - left), rowH, 5), fill: col(r.arm), class: "bar" }, grp);
+    bindTip(grp, r.tip);
+    txt(svg, x(r.v) + 8, y + rowH / 2 + 4, labelFn(r.v), { class: "val" });
+  });
+}
+function drawWait() {
+  const u = user();
+  hbarPair("#c-wait", [
+    { arm: base, v: u.baseMin, label: "Without Tierwise", sub: NAME[base], tip: `${u.jobs.toFixed(2)} jobs × ${u.b.min.toFixed(1)} min = ${hm(u.baseMin)}` },
+    { arm: "Tierwise", v: u.mMin, label: "With Tierwise", sub: "average of 3 runs", tip: `${u.jobs.toFixed(2)} jobs × ${u.m.min.toFixed(1)} min = ${hm(u.mMin)}<br>Saves ${hm(u.savedMin)}` },
+  ], u.baseMin, hm);
+}
+function drawScaleMoney() {
+  const u = user(), H = 290, top = 34, bottom = 44, left = 54;
+  const [svg, W] = svgBox("#c-scale-money", H), max = USERS[1] * BUDGET, y = (v) => top + (1 - v / max) * (H - top - bottom);
+  const g = svgEl("g", { class: "grid" }, svg), ax = svgEl("g", { class: "axis" }, svg);
+  for (const t of [0, 100000, 200000, 300000, 400000]) { svgEl("line", { x1: left, x2: W, y1: y(t), y2: y(t) }, g); txt(ax, left - 8, y(t) + 4, "$" + t / 1000 + "k", { "text-anchor": "end" }); }
+  const slot = (W - left) / USERS.length, bw = Math.min(54, slot * 0.3);
+  USERS.forEach((n, i) => {
+    const cx = left + slot * (i + 0.5), xb = cx - bw - 3, xm = cx + 3, without = n * BUDGET, withM = n * u.spend, saved = n * u.saved;
+    const g1 = svgEl("g", {}, svg), g2 = svgEl("g", {}, svg);
+    svgEl("path", { d: rT(xb, y(without), bw, y(0) - y(without), 5), fill: col(base), class: "bar" }, g1);
+    bindTip(g1, `<b>${fmtN(n)} users without Tierwise</b><br>${fmtN(n)} × ${money(BUDGET)} = ${money(without)}`);
+    svgEl("rect", { x: xm, y: y(without), width: bw, height: y(withM) - y(without), fill: "none", stroke: col("Tierwise"), "stroke-width": 1.5, "stroke-dasharray": "4 3", rx: 5 }, g2);
+    svgEl("path", { d: rT(xm, y(withM), bw, y(0) - y(withM), 5), fill: col("Tierwise"), class: "bar" }, g2);
+    bindTip(g2, `<b>${fmtN(n)} users with Tierwise</b><br>${fmtN(n)} × ${money(u.spend, 2)} = ${money(withM)}<br>Saved: ${fmtN(n)} × ${money(u.saved, 2)} = ${money(saved)}`);
+    txt(svg, cx, y(without) - 18, "saves", { class: "sub", "text-anchor": "middle" });
+    txt(svg, cx, y(without) - 4, money(saved), { class: "val", "text-anchor": "middle" });
+    const k = (v) => "$" + fmtN(v / 1000, v % 1000 ? 1 : 0) + "k";
+    txt(svg, xb + bw / 2, H - 24, k(without), { class: "sub", "text-anchor": "middle" });
+    txt(svg, xm + bw / 2, H - 24, k(withM), { class: "sub", "text-anchor": "middle" });
+    txt(svg, cx, H - 6, fmtN(n) + " users", { "text-anchor": "middle", "font-weight": 600 });
+  });
+}
+function drawScaleTime() {
+  const u = user(), H = 290, top = 50, bottom = 30, left = 56;
+  const [svg, W] = svgBox("#c-scale-time", H), hours = USERS.map(n => n * u.savedMin / 60), max = Math.max(...hours);
+  const ticks = niceTicks(max, 4), ymax = Math.max(max, ticks[ticks.length - 1]), y = (v) => top + (1 - v / ymax) * (H - top - bottom);
+  const g = svgEl("g", { class: "grid" }, svg), ax = svgEl("g", { class: "axis" }, svg);
+  for (const t of ticks) { svgEl("line", { x1: left, x2: W, y1: y(t), y2: y(t) }, g); txt(ax, left - 8, y(t) + 4, fmtN(t), { "text-anchor": "end" }); }
+  txt(ax, left - 8, top - 32, "hours", { "text-anchor": "end" });
+  const slot = (W - left) / USERS.length, bw = Math.min(76, slot * 0.42);
+  USERS.forEach((n, i) => {
+    const cx = left + slot * (i + 0.5), h = hours[i], grp = svgEl("g", {}, svg);
+    svgEl("path", { d: rT(cx - bw / 2, y(h), bw, y(0) - y(h), 5), fill: col("Tierwise"), class: "bar" }, grp);
+    bindTip(grp, `<b>${fmtN(n)} users</b><br>${fmtN(n)} × ${u.savedMin} min = ${fmtN(n * u.savedMin)} min<br>= ${fmtN(h, 1)} hours = ${fmtN(h / 8, 1)} working days`);
+    txt(svg, cx, y(h) - 22, fmtN(Math.round(h)) + " h", { class: "val", "text-anchor": "middle" });
+    txt(svg, cx, y(h) - 8, fmtN(Math.round(h / 8)) + " working days", { class: "sub", "text-anchor": "middle" });
+    txt(svg, cx, H - 8, fmtN(n) + " users", { "text-anchor": "middle", "font-weight": 600 });
+  });
+}
+function methodTable() {
+  const u = user(), B = NAME[base], tb = $("#t-method tbody"); tb.innerHTML = "";
+  const rows = [
+    ["Cost of one job, " + B, usd(u.b.usd), "research and build runs, every request priced by model and token type", "meas"],
+    ["Cost of one job, Tierwise", usd(u.m.usd), `average of three runs: ${u.m.runsUsd.map(usd).join(", ")}`, "meas"],
+    ["Time of one job, " + B + " / Tierwise", `${u.b.min.toFixed(1)} / ${u.m.min.toFixed(1)} min`, `wall-clock, first to last model request; Tierwise the average of ${u.m.runsMin.map(v => v.toFixed(1)).join(", ")} min`, "meas"],
+    ["Jobs in a $200 " + B + " spend", u.jobs.toFixed(2), `$200 ÷ ${usd(u.b.usd)}`, "calc"],
+    ["Tierwise cost of the same jobs", money(u.spend, 2), `${u.jobs.toFixed(4)} × ${usd(u.m.usd)}`, "calc"],
+    ["Saved per user", `${money(u.saved, 2)} (${(u.pct * 100).toFixed(1)}%)`, `$200 − ${money(u.spend, 2)}`, "calc"],
+    ["Jobs a $200 budget pays for with Tierwise", u.mJobs.toFixed(2), `$200 ÷ ${usd(u.m.usd)}; ${u.mult.toFixed(2)}× the ${u.jobs.toFixed(2)} without`, "calc"],
+    ["Waiting time per user, without / with", `${hm(u.baseMin)} / ${hm(u.mMin)}`, `${u.jobs.toFixed(2)} jobs × ${u.b.min.toFixed(1)} min; × ${u.m.min.toFixed(1)} min (each rounded to the minute)`, "calc"],
+    ["Waiting time saved per user", `${u.savedMin} min (${(u.pctTime * 100).toFixed(1)}%)`, `${u.baseMin} − ${u.mMin} min`, "calc"],
+    ...USERS.flatMap(n => [
+      [`Money saved, ${fmtN(n)} users`, money(n * u.saved), `${fmtN(n)} × ${money(u.saved, 2)}`, "proj"],
+      [`Waiting time saved, ${fmtN(n)} users`, `${fmtN(n * u.savedMin / 60, 1)} h · ${fmtN(n * u.savedMin / 480, 1)} working days`, `${fmtN(n)} × ${u.savedMin} min ÷ 60; ÷ 8 h per day`, "proj"],
+    ]),
+  ];
+  const label = { meas: "measured", calc: "from measurements", proj: "projection" };
+  for (const [f, v, c, k] of rows) {
+    const tr = document.createElement("tr");
+    for (const [i, t] of [f, v, c].entries()) { const td = document.createElement("td"); td.textContent = t; if (i === 1) td.className = "num"; tr.appendChild(td); }
+    const td = document.createElement("td"), b = document.createElement("span"); b.className = "badge " + k; b.textContent = label[k]; td.appendChild(b); tr.appendChild(td);
+    tb.appendChild(tr);
+  }
+}
+
+// ---- 4. quality detail
+function quality() {
+  const best = MR.reduce((a, n) => pct(PB[n]) > pct(PB[a]) ? n : a, MR[0]), others = MR.filter(n => n !== best);
+  const ord = (k) => ["first", "second", "third", "fourth", "fifth", "sixth"][k - 1];
+  const li = (ul, html) => { const e = document.createElement("li"); e.innerHTML = html; ul.appendChild(e); };  // fixed wording with numbers from the data file
+  const good = $("#q-good"), gap = $("#q-gap"); good.innerHTML = ""; gap.innerHTML = "";
+  li(good, `<b>Every build passed all 19 hidden acceptance tests</b>, in all three runs. All-Fable passed ${hidden.fable} of 19.`);
+  li(good, `<b>The top-scoring build in the panel was a Tierwise build:</b> ${pct(PB[best]).toFixed(1)}% of the maximum, ranked ${ord(PB[best].ranks.opus)} by the Opus judge and ${ord(PB[best].ranks.fable)} by the Fable judge, with no important defects found by either.`);
+  li(good, `<b>Research level with all-Opus:</b> ${qual.research.Tierwise.toFixed(1)} of 100 on average against ${qual.research.opus.toFixed(0)}, every run between ${Math.min(...qual.research.runs).toFixed(0)} and ${Math.max(...qual.research.runs).toFixed(0)}.`);
+  li(good, `<b>Builds ahead of all-Fable</b> on average (${qual.build.Tierwise.toFixed(1)}% vs ${qual.build.fable.toFixed(1)}%), each run at or above it.`);
+  li(gap, `<b>Research below all-Fable</b>, ${qual.research.Tierwise.toFixed(1)} against ${qual.research.fable.toFixed(0)}, mainly on breadth of sources. Both judges ranked all-Fable's research first.`);
+  li(gap, `<b>Build quality varies between runs.</b> Two of Tierwise's three builds scored ${others.map(n => pct(PB[n]).toFixed(1) + "%").join(" and ")}, below all-Opus (${qual.build.opus.toFixed(1)}%), with ${others.map(n => PB[n].important).join(" and ")} important defects between the two judges, mostly in how the secret scan reads its settings.`);
+  li(gap, `<b>Not equal to all-Opus on every build.</b> The evidence supports Opus-level research and builds ahead of all-Fable at lower cost than either, not parity with all-Opus on each run.`);
+  const tb = $("#t-compare tbody"); tb.innerHTML = "";
+  const rows = [
+    ["Cost per job", usd(job.Tierwise.usd), usd(job.opus.usd), usd(job.fable.usd)],
+    ["Minutes per job", job.Tierwise.min.toFixed(1), job.opus.min.toFixed(1), job.fable.min.toFixed(1)],
+    ["Hidden tests passed", hidden.Tierwise.map(v => v + "/19").join(" · "), hidden.opus + "/19", hidden.fable + "/19"],
+    ["Research score (of 100)", qual.research.Tierwise.toFixed(1), qual.research.opus.toFixed(0), qual.research.fable.toFixed(0)],
+    ["Build score (% of max)", qual.build.Tierwise.toFixed(1) + "%", qual.build.opus.toFixed(1) + "%", qual.build.fable.toFixed(1) + "%"],
+    ["Important build defects (both judges)", MR.map(n => PB[n].important).join(" · "), PB.opus.important, PB.fable.important],
+    ["Runs measured", `3 (${job.Tierwise.runsUsd.map(usd).join(" · ")})`, "1", "1"],
+  ];
+  for (const cells of rows) {
+    const tr = document.createElement("tr");
+    cells.forEach((c, i) => { const td = document.createElement("td"); td.textContent = c; if (i) td.className = "num" + (i === 1 ? " m" : ""); tr.appendChild(td); });
+    tb.appendChild(tr);
+  }
+}
+
+function drawScale() { tiles(); methodTable(); drawSame(); drawBuys(); drawWait(); drawScaleMoney(); drawScaleTime(); }
+for (const [id, b] of [["#b-fable", "fable"], ["#b-opus", "opus"]]) $(id).addEventListener("click", () => {
+  base = b; $("#b-fable").setAttribute("aria-pressed", b === "fable"); $("#b-opus").setAttribute("aria-pressed", b === "opus"); drawScale();
+});
+function charts() { glance(); drawMix(); drawSame(); drawBuys(); drawWait(); drawScaleMoney(); drawScaleTime(); }
+kpis(); quality(); tiles(); methodTable(); charts();
+let rt; new ResizeObserver(() => { clearTimeout(rt); rt = setTimeout(charts, 80); }).observe($(".main"));
+</script>
+
+</body>
+</html>

@@ -1,0 +1,38 @@
+#!/usr/bin/env python3
+"""List the checks the current change needs, with their commands (null = tool missing).
+
+  select-checks [--files f1 f2 ...] [--tier R2] [--class feature] [--plan path]
+Without --files: the files changed since the active task's base (or the working tree's changes).
+"""
+import argparse
+import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from mlib import checks as C  # noqa: E402
+from mlib.common import changed_files, git_root, load_config, load_state, paths_tier  # noqa: E402
+
+
+def main():
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--files", nargs="*")
+    ap.add_argument("--tier")
+    ap.add_argument("--class", dest="cls")
+    ap.add_argument("--plan")
+    a = ap.parse_args()
+    root = git_root(os.getcwd())
+    if not root:
+        print("select-checks: not inside a git repository", file=sys.stderr)
+        return 2
+    cfg = load_config(root)
+    task = load_state(root).get("task") or {}
+    files = a.files if a.files is not None else changed_files(root, task.get("base") or "HEAD", task.get("untracked", []))
+    tier = a.tier or task.get("tier") or paths_tier(files, cfg) or "R1"
+    sel = C.select(cfg, files, tier, a.cls or task.get("class"), C.plan_checks(root, a.plan or task.get("plan")))
+    print(json.dumps({"tier": tier, "files": files, "checks": sel}, indent=2))
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

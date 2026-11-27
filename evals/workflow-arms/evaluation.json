@@ -1,0 +1,273 @@
+{
+ "about": "Measured results behind the Tierwise evaluation. One job = one research-and-evaluation workflow plus one build-test-review-fix workflow, identical for every approach except the model each agent runs on. Costs are list-price equivalents in USD, every request priced by its own model and token type; minutes are wall-clock from first to last model request. Blind judging: one Opus and one Fable judge scored anonymised outputs together in one panel of six (the five here plus one output from an earlier Tierwise configuration, not included).",
+ "prices_per_million_tokens": {
+  "fable": {
+   "input": 8,
+   "output": 40,
+   "cache_read": 0.2
+  },
+  "opus": {
+   "input": 4,
+   "output": 20,
+   "cache_read": 0.2
+  },
+  "sonnet": {
+   "input": 2,
+   "output": 10,
+   "cache_read": 0.1
+  },
+  "haiku": {
+   "input": 0.1,
+   "output": 0.5,
+   "cache_read": 0.01
+  },
+  "cache_writes": "1.25x input for 5-minute, 2x input for 1-hour"
+ },
+ "judging_criteria": {
+  "research": [
+   "accuracy",
+   "relevance",
+   "actionability",
+   "judgment",
+   "coverage"
+  ],
+  "build": [
+   "correctness",
+   "robustness",
+   "security",
+   "tests",
+   "maintainability",
+   "spec_fit"
+  ]
+ },
+ "approaches": {
+  "tierwise": {
+   "dates": "2026-11-27",
+   "runs": [
+    {
+     "run": 1,
+     "research": {
+      "usd": 5.4429,
+      "minutes": 8.2,
+      "usd_by_model": {
+       "sonnet": 0.5992,
+       "opus": 1.831,
+       "fable": 3.0127
+      }
+     },
+     "build": {
+      "usd": 5.948,
+      "minutes": 21.1,
+      "usd_by_model": {
+       "opus": 5.5825,
+       "sonnet": 0.3556,
+       "haiku": 0.0098
+      },
+      "hidden_tests_passed": 19,
+      "hidden_tests_total": 19,
+      "own_tests": 177,
+      "mod_tests": 25,
+      "fix_rounds": 1
+     },
+     "judging": {
+      "research": {
+       "opus_judge": 42,
+       "fable_judge": 44,
+       "max_per_judge": 50,
+       "rank_of_six": {
+        "opus_judge": 3,
+        "fable_judge": 2
+       }
+      },
+      "build": {
+       "opus_judge": 39,
+       "fable_judge": 35,
+       "max_per_judge": 60,
+       "rank_of_six": {
+        "opus_judge": 4,
+        "fable_judge": 4
+       },
+       "important_defects": 5
+      }
+     }
+    },
+    {
+     "run": 2,
+     "research": {
+      "usd": 4.952,
+      "minutes": 9.0,
+      "usd_by_model": {
+       "opus": 1.7095,
+       "sonnet": 0.4461,
+       "fable": 2.7964
+      }
+     },
+     "build": {
+      "usd": 5.6747,
+      "minutes": 21.0,
+      "usd_by_model": {
+       "haiku": 0.0106,
+       "opus": 5.2832,
+       "sonnet": 0.3809
+      },
+      "hidden_tests_passed": 19,
+      "hidden_tests_total": 19,
+      "own_tests": 186,
+      "mod_tests": 24,
+      "fix_rounds": 1
+     },
+     "judging": {
+      "research": {
+       "opus_judge": 40,
+       "fable_judge": 43,
+       "max_per_judge": 50,
+       "rank_of_six": {
+        "opus_judge": 5,
+        "fable_judge": 3
+       }
+      },
+      "build": {
+       "opus_judge": 40,
+       "fable_judge": 36,
+       "max_per_judge": 60,
+       "rank_of_six": {
+        "opus_judge": 3,
+        "fable_judge": 3
+       },
+       "important_defects": 4
+      }
+     }
+    },
+    {
+     "run": 3,
+     "research": {
+      "usd": 4.6564,
+      "minutes": 9.9,
+      "usd_by_model": {
+       "fable": 2.4374,
+       "sonnet": 0.4526,
+       "opus": 1.7664
+      }
+     },
+     "build": {
+      "usd": 5.3105,
+      "minutes": 20.1,
+      "usd_by_model": {
+       "opus": 4.8678,
+       "haiku": 0.0144,
+       "sonnet": 0.4282
+      },
+      "hidden_tests_passed": 19,
+      "hidden_tests_total": 19,
+      "own_tests": 184,
+      "mod_tests": 25,
+      "fix_rounds": 1
+     },
+     "judging": {
+      "research": {
+       "opus_judge": 40,
+       "fable_judge": 42,
+       "max_per_judge": 50,
+       "rank_of_six": {
+        "opus_judge": 4,
+        "fable_judge": 4
+       }
+      },
+      "build": {
+       "opus_judge": 48,
+       "fable_judge": 44,
+       "max_per_judge": 60,
+       "rank_of_six": {
+        "opus_judge": 1,
+        "fable_judge": 2
+       },
+       "important_defects": 0
+      }
+     }
+    }
+   ]
+  },
+  "all-opus": {
+   "dates": "2026-11-26",
+   "runs": [
+    {
+     "research": {
+      "usd": 4.1334,
+      "minutes": 10.0
+     },
+     "build": {
+      "usd": 7.3039,
+      "minutes": 23.3,
+      "hidden_tests_passed": 19,
+      "hidden_tests_total": 19,
+      "own_tests": 192,
+      "mod_tests": 24,
+      "fix_rounds": 1
+     },
+     "judging": {
+      "research": {
+       "opus_judge": 43,
+       "fable_judge": 40,
+       "max_per_judge": 50,
+       "rank_of_six": {
+        "opus_judge": 2,
+        "fable_judge": 5
+       }
+      },
+      "build": {
+       "opus_judge": 45,
+       "fable_judge": 45,
+       "max_per_judge": 60,
+       "rank_of_six": {
+        "opus_judge": 2,
+        "fable_judge": 1
+       },
+       "important_defects": 1
+      }
+     }
+    }
+   ]
+  },
+  "all-fable": {
+   "dates": "2026-11-26",
+   "runs": [
+    {
+     "research": {
+      "usd": 13.1435,
+      "minutes": 15.4
+     },
+     "build": {
+      "usd": 22.199,
+      "minutes": 45.1,
+      "hidden_tests_passed": 18,
+      "hidden_tests_total": 19,
+      "own_tests": 244,
+      "mod_tests": 28,
+      "fix_rounds": 2
+     },
+     "judging": {
+      "research": {
+       "opus_judge": 45,
+       "fable_judge": 46,
+       "max_per_judge": 50,
+       "rank_of_six": {
+        "opus_judge": 1,
+        "fable_judge": 1
+       }
+      },
+      "build": {
+       "opus_judge": 39,
+       "fable_judge": 34,
+       "max_per_judge": 60,
+       "rank_of_six": {
+        "opus_judge": 5,
+        "fable_judge": 5
+       },
+       "important_defects": 4
+      }
+     }
+    }
+   ]
+  }
+ }
+}

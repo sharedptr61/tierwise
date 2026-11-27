@@ -1,0 +1,133 @@
+{
+  "confirmed": false,
+  "planner": {
+    "effort": "xhigh",
+    "effortR3": "max",
+    "replanEffort": "max",
+    "fallbackModel": "opus",
+    "planClasses": [
+      "feature",
+      "bulk",
+      "investigation",
+      "high-risk"
+    ]
+  },
+  "classifier": {
+    "useModel": true,
+    "model": "haiku",
+    "underspecifiedWords": 8
+  },
+  "caps": {
+    "routesPerUnit": 3,
+    "replansPerTask": 1,
+    "principalCallsPerTask": 2,
+    "parallelBuilders": 3,
+    "gateBlocksPerTask": 8,
+    "checkTimeoutSeconds": 300,
+    "taskBudgetUsd": 25,
+    "fableWeeklyOutputTokensWarn": 1500000
+  },
+  "risk": {
+    "R3": [
+      "**/auth/**",
+      "**/authn/**",
+      "**/authz/**",
+      "**/login/**",
+      "**/session/**",
+      "**/sessions/**",
+      "**/security/**",
+      "**/crypto/**",
+      "**/*crypt*",
+      "**/payment*/**",
+      "**/billing/**",
+      "**/checkout/**",
+      "**/migrations/**",
+      "**/migrate/**",
+      "**/*.sql",
+      "**/terraform/**",
+      "**/*.tf",
+      "**/*.tfvars",
+      "**/k8s/**",
+      "**/kubernetes/**",
+      "**/helm/**",
+      "**/deploy/**",
+      "**/infra/**",
+      "**/Dockerfile*",
+      "**/docker-compose*.yml",
+      "**/.github/workflows/**",
+      "**/.gitlab-ci.yml",
+      "**/secrets/**",
+      "**/.env*",
+      "**/pii/**",
+      "**/personal*/**"
+    ],
+    "R2": [
+      "**/handlers/**",
+      "**/routes/**",
+      "**/router*",
+      "**/middleware/**",
+      "**/controllers/**",
+      "**/views/**",
+      "**/shared/**",
+      "**/common/**",
+      "**/core/**",
+      "**/lib/**",
+      "**/public/**",
+      "**/*concurren*",
+      "**/package.json",
+      "**/package-lock.json",
+      "**/yarn.lock",
+      "**/pnpm-lock.yaml",
+      "**/requirements*.txt",
+      "**/pyproject.toml",
+      "**/poetry.lock",
+      "**/uv.lock",
+      "**/Pipfile*",
+      "**/go.mod",
+      "**/go.sum",
+      "**/Cargo.toml",
+      "**/Cargo.lock",
+      "**/Gemfile*",
+      "**/pom.xml",
+      "**/build.gradle*"
+    ],
+    "R0": [
+      "**/*.md",
+      "**/*.rst",
+      "**/*.txt",
+      "**/docs/**",
+      "**/doc/**",
+      "**/LICENSE*",
+      "**/CHANGELOG*",
+      "**/tests/**",
+      "**/test/**",
+      "**/__tests__/**",
+      "**/*_test.*",
+      "**/*.test.*",
+      "**/*.spec.*",
+      "**/test_*.py"
+    ]
+  },
+  "checks": {
+    "unit": null,
+    "typecheck": null,
+    "lint": null,
+    "docs": null,
+    "race": null,
+    "sast": null,
+    "sca": null,
+    "iac": null,
+    "migration": null,
+    "mutation": null,
+    "secrets": "builtin",
+    "affected": null
+  },
+  "secrets": {
+    "rules": [],
+    "allow": {
+      "paths": [],
+      "regexes": []
+    }
+  },
+  "allowBuiltinAgents": false
+}

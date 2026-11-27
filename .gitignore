@@ -1,0 +1,14 @@
+# Working files kept out of the public repository
+internal/
+
+# Tierwise's own per-project state, if the plugin is used on this repository
+.tierwise/
+.claude/settings.local.json
+
+# Python and editors
+__pycache__/
+*.pyc
+.venv/
+.DS_Store
+.idea/
+.vscode/
