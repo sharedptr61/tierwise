@@ -49,7 +49,7 @@ From Claude Code:
 
 Restart Claude Code (or run `/reload-plugins`). The first time you load it, Claude Code asks whether to run the plugin's mod (in-process code with your permissions); Tierwise works without it, with coarser effort control.
 
-Requirements: Claude Code 2.1.299 or later (2.1.332 tested), Python 3.8+, git. Projects must be git repositories for task state and the gate.
+Requirements: Claude Code 2.1.299 or later (2.1.332 tested), Python 3.8+, git. Projects must be git repositories for task state and the gate. Install or update Claude Code with the native installer (`curl -fsSL https://claude.ai/install.sh | bash`); the npm package can lag behind the required version.
 
 **Platform:** Ubuntu (22.04 and 24.04 LTS). macOS and Windows are not supported in this release; support is planned once they have been tested.
 

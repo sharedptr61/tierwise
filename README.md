@@ -97,7 +97,7 @@ In Claude Code:
 
 Then run `/reload-plugins` or restart. The first time, Claude Code asks whether to run Tierwise's mod (in-process code that sets effort per prompt and measures cost); Tierwise also works without it, with coarser effort control.
 
-**Requirements:** Claude Code 2.1.299 or later, Python 3.8+, git; projects must be git repositories.
+**Requirements:** Claude Code 2.1.299 or later, Python 3.8+, git; projects must be git repositories. Install or update Claude Code with the native installer (`curl -fsSL https://claude.ai/install.sh | bash`); the npm package can lag behind the required version.
 
 **Platform:** Ubuntu (22.04 and 24.04 LTS). macOS and Windows are not supported in this release; support is planned once they have been tested.
 
